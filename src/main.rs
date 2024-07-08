@@ -5,6 +5,11 @@ static PALINDROME_LENGTH: u32 = 5;
 static GAP_LENGTH: u32 = 6;
 static NUM_MISMATCH:u32 = 2;
 
+
+
+// add commment
+// this is useless
+
 fn main() -> std::io::Result<()> {
     let file = File::open("sequence.txt")?;
     let reader = BufReader::new(file);
