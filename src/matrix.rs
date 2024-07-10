@@ -1,9 +1,47 @@
 use std::ops::{Index, IndexMut};
+use core::fmt;
 
+#[derive(Debug)]
 pub struct Matrix<T> {
     data: Vec<T>,
     rows: usize,
     columns: usize,
+}
+impl<T> Matrix<T>{
+    pub fn get_data(&self) -> &Vec<T>{
+        return &self.data;
+    }
+
+    pub fn get_row(&self) -> usize{
+        return self.rows;
+    }
+
+    pub fn get_col(&self) -> usize{
+        return self.columns;
+    }
+}
+
+impl Matrix<u32>{
+    pub fn get_index(&self, element: u32) -> (usize, usize){
+        for item in self.data.iter().enumerate(){
+            if *item.1 == element{
+                return ((item.0/self.columns), item.0 % self.columns)
+            }
+        }
+        panic!("Item not in matrix")
+    }
+}
+
+impl<T: fmt::Display> fmt::Display for Matrix<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for i in 0..self.rows {
+            for j in 0..self.columns {
+                write!(f, "{}\t", self[[i, j]])?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
 }
 
 impl<T: Default + Clone> Matrix<T> {
@@ -48,5 +86,3 @@ impl<T> IndexMut<[usize; 2]> for Matrix<T> {
         &mut self.data[self.rows * index[0] + index[1]]
     }
 }
-
-

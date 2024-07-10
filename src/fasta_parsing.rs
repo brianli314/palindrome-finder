@@ -1,5 +1,6 @@
 use crate::exact_matches::{self, match_exact};
-use exact_matches::PalindromeData;
+use crate::{smith_waterman, util};
+use util::PalindromeData;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
@@ -9,14 +10,30 @@ pub fn parse_fasta(name: &str, output: &mut Vec<PalindromeData>) {
         Err(error) => panic!("Problem opening the file: {error:?}"),
     };
     let reader = BufReader::new(file);
-    for line in reader.lines() {
-        match line {
+
+    let mut seq = String::new();
+    let mut palins = Vec::new();
+    
+    for line in reader.lines(){
+        match line{
             Ok(sequence) => {
-                let sequence = sequence;
-                let mut palins = match_exact(&sequence);
-                output.append(&mut palins);
+                if sequence.starts_with(">"){
+                    if !seq.is_empty(){
+                        match_exact(&seq, &mut palins);
+                        output.append(&mut palins);
+                        palins.clear();
+                    }
+                    seq.clear();
+                } else {
+                    seq += &sequence;
+                }
             }
-            Err(error) => panic!("Problem opening the file: {error:?}"),
+            Err(error) => panic!("Problem opening the file: {error:?}")
         }
     }
+    match_exact(&seq, &mut palins);
+    output.append(&mut palins);
+    palins.clear();
 }
+    
+
