@@ -1,4 +1,4 @@
-use std::{cmp::{max, min}, fmt, ops::{Index, IndexMut}};
+use std::cmp::max;
 use crate::{matrix::Matrix, util::*};
 
 pub fn smith_waterman(seq: &str, output: &mut Vec<PalindromeData>) {

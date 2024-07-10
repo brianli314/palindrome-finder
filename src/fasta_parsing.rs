@@ -1,5 +1,5 @@
-use crate::exact_matches::{self, match_exact};
-use crate::{smith_waterman, util};
+use crate::exact_matches::match_exact;
+use crate::util;
 use util::PalindromeData;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
