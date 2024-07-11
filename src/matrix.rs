@@ -36,7 +36,7 @@ impl<T: fmt::Display> fmt::Display for Matrix<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for i in 0..self.rows {
             for j in 0..self.columns {
-                write!(f, "{}\t", self[[i, j]])?;
+                write!(f, "{} ", self[[i, j]])?;
             }
             writeln!(f)?;
         }

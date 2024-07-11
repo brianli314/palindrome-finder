@@ -8,7 +8,7 @@ use util::PalindromeData;
 
 fn main() {
     let mut palins:Vec<PalindromeData> = Vec::new();
-    parse_fasta("dna1.fasta", &mut palins);
+    parse_fasta("sequence.txt", &mut palins);
     for p in &palins {
         println!("{}", p)
     }

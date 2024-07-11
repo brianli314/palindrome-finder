@@ -1,4 +1,5 @@
 use crate::exact_matches::match_exact;
+use crate::smith_waterman::smith_waterman;
 use crate::util;
 use util::PalindromeData;
 use std::fs::File;
@@ -19,9 +20,7 @@ pub fn parse_fasta(name: &str, output: &mut Vec<PalindromeData>) {
             Ok(sequence) => {
                 if sequence.starts_with(">"){
                     if !seq.is_empty(){
-                        match_exact(&seq, &mut palins);
-                        output.append(&mut palins);
-                        palins.clear();
+                        run_search(&seq, &mut palins, output)
                     }
                     seq.clear();
                 } else {
@@ -31,8 +30,12 @@ pub fn parse_fasta(name: &str, output: &mut Vec<PalindromeData>) {
             Err(error) => panic!("Problem opening the file: {error:?}")
         }
     }
-    match_exact(&seq, &mut palins);
-    output.append(&mut palins);
+    run_search(&seq, &mut palins, output)
+}
+
+fn run_search(seq: &str, palins: &mut Vec<PalindromeData>, output: &mut Vec<PalindromeData>){
+    smith_waterman(&seq, palins);
+    output.append(palins);
     palins.clear();
 }
     

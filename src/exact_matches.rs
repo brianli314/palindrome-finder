@@ -1,9 +1,4 @@
-
-
 use crate::util::*;
-
-
-
 
 
 pub fn match_exact(seq: &str, output: &mut Vec<PalindromeData>){
@@ -16,6 +11,8 @@ pub fn match_exact(seq: &str, output: &mut Vec<PalindromeData>){
                     i + 1 - length,
                     i + length + j - 1,
                     length,
+                    j-1,
+                    0,
                     seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned()); // clarify what i + 1 - length and i + length + j mean
                 output.push(palin);
             }
