@@ -1,9 +1,13 @@
 use std::cmp::max;
 use crate::{matrix::Matrix, util::*};
 
+static GAP_PENALTY: i32 = 2;
+static MISMATCH_PENALTY:i32 = 2;
+static MATCH_BONUS:u32 = 1;
+
 pub fn smith_waterman(seq: &str, output: &mut Vec<PalindromeData>) {
     let mut matrix = fill_matrix(seq);
-    println!("{}", matrix); 
+    //println!("{}", matrix); 
     traceback(seq, &mut matrix, output)
 }
 
@@ -32,7 +36,7 @@ fn traceback(seq: &str, matrix: &mut Matrix<u32>, output: &mut Vec<PalindromeDat
             break;
         }
         let (mut x, mut y) = matrix.get_index(square);
-        while square != 0 && (mismatches as f32)/(palin.len() as f32) < 0.3{
+        while square != 0 && (mismatches as f32)/(palin.len() as f32) < MISMATCH_LENGTH_RATIO{
             let sub = matrix[[x - 1, y - 1]];
             let del = matrix[[x - 1, y]];
             let ins = matrix[[x, y - 1]];
@@ -65,12 +69,12 @@ fn fill_matrix(seq: &str) -> Matrix<u32>{
         for col in 1..length+1{
             let mut sub = matrix[[row-1, col-1]];
             if !seq[col-1..=col-1].eq(&complement[row-1..=row-1]) {
-                sub = max(0, sub as i32 - 1)  as u32;
+                sub = max(0, sub as i32 - MISMATCH_PENALTY)  as u32;
             } else {
-                sub += 1;
+                sub += MATCH_BONUS;
             }
-            let del = max(matrix[[row-1, col]] as i32 - 2, 0) as u32;
-            let insert = max(matrix[[row, col-1]] as i32 - 2, 0) as u32;
+            let del = max(matrix[[row-1, col]] as i32 - GAP_PENALTY, 0) as u32;
+            let insert = max(matrix[[row, col-1]] as i32 - GAP_PENALTY, 0) as u32;
             matrix[[row, col]] = max(del, max(sub, insert));
         }
     }

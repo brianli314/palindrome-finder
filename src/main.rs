@@ -3,6 +3,7 @@ mod fasta_parsing;
 pub mod matrix;
 pub mod util;
 pub mod smith_waterman;
+pub mod myers;
 use fasta_parsing::parse_fasta;
 use util::PalindromeData;
 

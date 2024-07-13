@@ -3,6 +3,7 @@ use core::fmt;
 pub static PALINDROME_LENGTH: u32 = 5;
 pub static GAP_LENGTH: u32 = 6;
 pub static NUM_MISMATCH: u32 = 0;
+pub static MISMATCH_LENGTH_RATIO: f32 = 0.3;
 
 
 #[derive(Debug)]
