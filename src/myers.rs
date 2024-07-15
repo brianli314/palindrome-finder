@@ -1,22 +1,49 @@
-use crate::{matrix::Matrix, output::PalindromeData, smith_waterman::MISMATCH_LENGTH_RATIO, exact_matches::PALINDROME_LENGTH}; // * imports are not recommended in rust
+use std::{arch::x86_64::_MM_FROUND_NO_EXC, cmp::max, mem};
 
+use crate::{
+    exact_matches::{get_complement, PALINDROME_LENGTH},
+    matrix::Matrix,
+    output::PalindromeData,
+    smith_waterman::MISMATCH_LENGTH_RATIO,
+};
 
-fn WFA(seq: &str){
-    let len = seq.len();
+pub fn wfa(seq: &str, seq2: &str) {
+    let len = max(seq.len(), seq2.len());
     let mut mismatches = 0;
-    let mut wavefront = vec![0; len]; // are we sure that this should be len? Remember that this is diagonal.
-    // You should not be modifying the wavefront in place. In general, the way that this algorithm is implemented is to
-    // use two seperate buffers. In each iteration, we compute the next wavefront, writing it to the new buffer. Then, we swap the buffers,
-    // making the old, outdated buffer a place where we can write the new buffer.
-    // This is extremely important because modifying in place could have some really bad side effects. Try to think about what those could be!
+    let mut wavefront: Vec<u32> = vec![0; len];
+    let mut new_wavefront: Vec<u32> = vec![0; len];
     let mut index = 1;
-    while (mismatches as f32)/(len as f32) < MISMATCH_LENGTH_RATIO{
-        for i in 0..len{
-            
+    let mut wf_len = 3;
+    while (mismatches as f32) / (len as f32 + 0.001) < MISMATCH_LENGTH_RATIO {
+        for i in 0..wf_len {
+            if i == 0 {
+                new_wavefront[i] = wavefront[i];
+                if wavefront[i] > wavefront[i + 1] {
+                    new_wavefront[i+1] = wavefront[i] + 1;
+                } else {
+                    new_wavefront[i+1] = wavefront[i + 1];
+                }
+            } else if i != wf_len - 1 {
+                let max = max(wavefront[i], max(wavefront[i - 1], wavefront[i + 1]));
+                if max == wavefront[i] {
+                    new_wavefront[i+1] = max + 1;
+                } else {
+                    new_wavefront[i+1] = max;
+                }
+            } else {
+                new_wavefront[i+2] = wavefront[i];
+                if wavefront[i-1] > wavefront[i]{
+                    new_wavefront[i+1] = wavefront[i-1]
+                } else {
+                    new_wavefront[i+1] = wavefront[i] + 1;
+                }
+            }
         }
-        let sub = wavefront[index] + 1;
-        let del = wavefront[index - 1] + 1;
-        let ins = wavefront[index + 1] + 1;
+        mem::swap(&mut wavefront, &mut new_wavefront);
+        wf_len += 2;
     }
+}
 
+fn compute_next_wf(){
+    
 }

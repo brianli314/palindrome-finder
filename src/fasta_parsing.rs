@@ -1,10 +1,11 @@
-use crate::exact_matches::match_exact;
-use crate::smith_waterman::smith_waterman;
+use crate::exact_matches::{self, match_exact};
 use crate::output::PalindromeData;
+use crate::smith_waterman::smith_waterman;
 use std::fs::File;
 use std::io::{prelude::*, BufReader, Lines};
 use std::mem;
 
+#[derive(Debug, Clone)]
 pub struct Fasta {
     name: String,
     sequence: String,
@@ -12,6 +13,12 @@ pub struct Fasta {
 impl Fasta {
     pub fn new(name: String, sequence: String) -> Self {
         Self { name, sequence }
+    }
+    pub fn get_sequence(&self) -> String {
+        return self.sequence.clone();
+    }
+    pub fn get_name(&self) -> String {
+        return self.name.clone();
     }
 }
 
@@ -29,10 +36,11 @@ impl Iterator for FastaIterator {
             let line = line.expect("Failed to read from fasta!");
             if line.starts_with(">") {
                 if seq.len() == 0 {
+                    self.curr_name = line[1..].to_owned();
                     continue;
                 }
 
-                let mut name = line.to_owned();
+                let mut name = line[1..].to_owned();
                 mem::swap(&mut name, &mut self.curr_name);
                 return Some(Fasta {
                     name,
@@ -65,36 +73,23 @@ impl FastaIterator {
 // TODO: Try and make this function more generic. You can do this in two ways:
 // 1. Have this output an owned string which incurs some overhead but not much
 // 2. Have this function take in a closure as an input. Read https://doc.rust-lang.org/book/ch13-01-closures.html
-pub fn parse_fasta(name: &str, output: &mut Vec<PalindromeData>) {
+pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
     let file = match File::open(name) {
         Ok(file) => file,
         Err(error) => panic!("Problem opening the file: {error:?}"),
     };
     let reader = BufReader::new(file);
-    
-    let mut seq = String::new();
+    let mut output: Vec<PalindromeData> = Vec::new();
     let mut palins = Vec::new();
-
-    for line in reader.lines() {
-        match line {
-            Ok(line) => {
-                if line.starts_with(">") {
-                    if !seq.is_empty() {
-                        run_search(&seq, &mut palins, output)
-                    }
-                    seq.clear();
-                } else {
-                    seq += &line;
-                }
-            }
-            Err(error) => panic!("{error:?}"),
-        }
+    let iterator = FastaIterator::new(reader);
+    for line in iterator {
+        run_search(line, &mut palins, &mut output)
     }
-    run_search(&seq, &mut palins, output)
+    output
 }
 
-fn run_search(seq: &str, palins: &mut Vec<PalindromeData>, output: &mut Vec<PalindromeData>) {
-    smith_waterman(&seq, palins);
+fn run_search(fasta: Fasta, palins: &mut Vec<PalindromeData>, output: &mut Vec<PalindromeData>) {
+    smith_waterman(fasta, palins);
     output.append(palins);
     palins.clear();
 }

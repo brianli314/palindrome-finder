@@ -1,10 +1,11 @@
-use crate::output::PalindromeData;
+use crate::{fasta_parsing::Fasta, output::PalindromeData};
 
 pub static PALINDROME_LENGTH: u32 = 5;
 pub static GAP_LENGTH: u32 = 6;
 pub static NUM_MISMATCH: u32 = 0;
 
-pub fn match_exact(seq: &str, output: &mut Vec<PalindromeData>){
+pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>){
+    let seq = fasta.get_sequence();
     for i in 0..seq.len() as u32 {
         let mut j = 1;
         while i >= j && j <= GAP_LENGTH {
@@ -16,7 +17,8 @@ pub fn match_exact(seq: &str, output: &mut Vec<PalindromeData>){
                     length,
                     j-1,
                     0,
-                    seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned()); // clarify what i + 1 - length and i + length + j mean
+                    fasta.clone(),
+                    seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned());
                 output.push(palin);
             }
             j += 1;
