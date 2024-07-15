@@ -1,11 +1,11 @@
 pub mod exact_matches;
 mod fasta_parsing;
 pub mod matrix;
-pub mod util;
+pub mod output;
 pub mod smith_waterman;
 pub mod myers;
 use fasta_parsing::parse_fasta;
-use util::PalindromeData;
+use output::PalindromeData;
 
 fn main() {
     let mut palins:Vec<PalindromeData> = Vec::new();

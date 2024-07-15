@@ -1,5 +1,8 @@
-use crate::util::*;
+use crate::output::PalindromeData;
 
+pub static PALINDROME_LENGTH: u32 = 5;
+pub static GAP_LENGTH: u32 = 6;
+pub static NUM_MISMATCH: u32 = 0;
 
 pub fn match_exact(seq: &str, output: &mut Vec<PalindromeData>){
     for i in 0..seq.len() as u32 {
@@ -42,4 +45,26 @@ fn count_palindrome(start: u32, end: u32, seq: &str) -> u32 {
     }
 
     return count;
+}
+
+pub fn seq_compliment(seq: &str) -> String {
+    let mut output = String::new();
+    for i in 0..seq.len() {
+        output += get_complement(&seq[i..=i]);
+    }
+    return output;
+}
+pub fn get_complement(bp: &str) -> &str {
+    let bpu = bp.to_uppercase();
+    let letter = match &bpu[0..=0] {
+        "A" => "T",
+        "T" => "A",
+        "C" => "G",
+        "G" => "C",
+        _ => panic!("Not a base pair"),
+    };
+    return letter;
+}
+pub fn is_complement(base1: &str, base2: &str) -> bool {
+    return get_complement(base1) == base2;
 }

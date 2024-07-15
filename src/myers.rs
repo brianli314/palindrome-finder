@@ -1,4 +1,4 @@
-use crate::{matrix::Matrix, util::*}; // * imports are not recommended in rust
+use crate::{matrix::Matrix, output::PalindromeData, smith_waterman::MISMATCH_LENGTH_RATIO, exact_matches::PALINDROME_LENGTH}; // * imports are not recommended in rust
 
 
 fn WFA(seq: &str){
