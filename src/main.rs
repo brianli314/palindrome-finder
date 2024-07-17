@@ -14,4 +14,6 @@ fn main() {
         println!("{}", p)
     }
     palins.clear();
+
+    //wfa("AEFAEFAEFAEFAEFAEFEEFAEFAEFAEF")
 }
