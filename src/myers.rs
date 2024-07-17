@@ -6,15 +6,26 @@ use crate::{
     smith_waterman::MISMATCH_LENGTH_RATIO,
 };
 
-pub fn wfa(seq: &str) {
-    let len = seq.len();
+pub fn wfa(seq: &str, seq2: &str) -> u32{
+    let len = 2*max(seq.len(), seq2.len()) + 3;
     let mut edit_dist = 0;
     let mut wavefront: Vec<u32> = vec![0; len];
     let mut new_wavefront: Vec<u32> = vec![0; len];
     let mut index = 0;
     let mut wf_len = 3;
-    while (edit_dist as f32) / (len as f32 + 0.001) < MISMATCH_LENGTH_RATIO {
-        
+    loop {
+        for i in 0..wf_len{
+            let (mut x, mut y) = get_xy(wf_len, i, wavefront[i] as usize);
+            while x < seq.len() && y < seq2.len() && &seq[x..=x] == &seq2[y..=y]{
+                dbg!(x, y, &seq[x..=x], &seq2[y..=y]);
+                wavefront[i] += 1;
+                x += 1;
+                y += 1;
+            }
+            if x == seq.len() && y == seq2.len(){
+                return edit_dist;
+            }
+        }
         for i in 0..wf_len {
             if i == 0 {
                 new_wavefront[i] = wavefront[i];
@@ -26,9 +37,17 @@ pub fn wfa(seq: &str) {
                 new_wavefront[i+1] = max( wavefront[i-1], wavefront[i] + 1);
             }
         }
+        edit_dist += 1;
         mem::swap(&mut wavefront, &mut new_wavefront);
-        dbg!(&wavefront);
         wf_len += 2;
     }
 }
 
+fn get_xy(wf_len: usize, index: usize, length: usize) -> (usize, usize){
+    let offset = (((wf_len - 3)/2) + 1) as i32 - (index as i32);
+    if offset >= 0 {
+        return (length, length + offset as usize)
+    } else {
+        return (length + (offset.abs()) as usize, length);
+    }
+}

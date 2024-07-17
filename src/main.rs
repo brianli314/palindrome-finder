@@ -15,5 +15,5 @@ fn main() {
     }
     palins.clear();
 
-    //wfa("AEFAEFAEFAEFAEFAEFEEFAEFAEFAEF")
+    println!("{}", wfa("AGGTCATCG", "money"))
 }
