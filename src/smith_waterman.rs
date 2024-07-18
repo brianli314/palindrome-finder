@@ -59,7 +59,7 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
                 len,
                 0,
                 mismatches,
-                fasta.clone(),
+                fasta.get_name(),
                 palin.chars().rev().collect(),
             ));
         }

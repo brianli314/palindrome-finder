@@ -9,7 +9,7 @@ pub struct PalindromeData {
     length: u32,
     gap: u32,
     mismatches: u32,
-    fasta: Fasta,
+    fasta: String,
     sequence: String,
 }
 impl PalindromeData {
@@ -19,7 +19,7 @@ impl PalindromeData {
         length: u32,
         gap: u32,
         mismatches: u32,
-        fasta: Fasta,
+        fasta: String,
         sequence: String,
     ) -> Self {
         Self {
@@ -38,7 +38,7 @@ impl fmt::Display for PalindromeData {
         write!(
             f,
             "Start: {}, End: {}, Length: {}, Gap Length: {}, Mismatches: {}, Name: {}, Sequence: {}",
-            self.start, self.end, self.length, self.gap, self.mismatches, self.fasta.get_name(), self.sequence
+            self.start, self.end, self.length, self.gap, self.mismatches, self.fasta, self.sequence
         )
     }
 }

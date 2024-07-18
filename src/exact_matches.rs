@@ -17,7 +17,7 @@ pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>){
                     length,
                     j-1,
                     0,
-                    fasta.clone(),
+                    fasta.get_name(),
                     seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned());
                 output.push(palin);
             }

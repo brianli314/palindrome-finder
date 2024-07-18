@@ -1,17 +1,33 @@
 use std::{cmp::max, mem};
 
 use crate::{
-    exact_matches::{get_complement, PALINDROME_LENGTH},
-    output::PalindromeData,
-    smith_waterman::MISMATCH_LENGTH_RATIO,
+    exact_matches::{get_complement, PALINDROME_LENGTH}, fasta_parsing::Fasta, output::PalindromeData, smith_waterman::MISMATCH_LENGTH_RATIO
 };
+
+pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>){
+    let seq = fasta.get_sequence();
+    let mut prev = String::new();
+    let mut index = 0;
+    while index <= seq.len(){
+        let len = wfa(&seq[index..], &prev);
+        if len >= PALINDROME_LENGTH{
+            output.push(PalindromeData::new(
+                index as u32,
+                index as u32+len,
+                len,
+                0, 
+                0,
+                fasta.get_name(), 
+                String::from(&seq[index..index+len as usize])))
+        }
+    }
+}
 
 pub fn wfa(seq: &str, seq2: &str) -> u32{
     let len = 2*max(seq.len(), seq2.len()) + 3;
     let mut edit_dist = 0;
     let mut wavefront: Vec<u32> = vec![0; len];
     let mut new_wavefront: Vec<u32> = vec![0; len];
-    let mut index = 0;
     let mut wf_len = 3;
     loop {
         for i in 0..wf_len{
