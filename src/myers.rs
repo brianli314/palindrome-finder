@@ -21,7 +21,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         wf[1] = 0;
         wf[2] = 0;
         let mut max_index = 0;
-        'outer: while (edit_dist as f32)/(wf[max_index] as f32 + 0.001)<= MISMATCH_LENGTH_RATIO {
+        'outer: while (edit_dist as f32)/(wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
             for i in 0..wf_len {
                 let (mut x, mut y) = get_xy(wf_len, i, wf[i]);
                 x = x + index;
@@ -51,6 +51,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                     wf_next[i + 1] = max(wf[i - 1], wf[i] + 1);
                 }
             }
+            max_index += 1;
             edit_dist += 1;
             mem::swap(&mut wf, &mut wf_next);
             wf_len += 2;
@@ -60,9 +61,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             continue;
         }
         let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
-        //dbg!(x, y, index, wf[max_index], max_index, wf_len);
         if (x + y) as u32 >= 5{
-            dbg!(x, y, index);
             let palin = PalindromeData::new(
                 (index - y) as u32, 
                 (index + x - 1) as u32, 
