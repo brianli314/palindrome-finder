@@ -1,4 +1,5 @@
 use crate::exact_matches::{self, match_exact};
+use crate::myers::{self, wfa_palins};
 use crate::output::PalindromeData;
 use crate::smith_waterman::smith_waterman;
 use std::fs::File;
@@ -89,7 +90,7 @@ pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
 }
 
 fn run_search(fasta: Fasta, palins: &mut Vec<PalindromeData>, output: &mut Vec<PalindromeData>) {
-    smith_waterman(fasta, palins);
+    wfa_palins(fasta, palins);
     output.append(palins);
     palins.clear();
 }

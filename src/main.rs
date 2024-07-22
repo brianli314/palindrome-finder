@@ -9,11 +9,11 @@ use myers::wfa;
 use output::PalindromeData;
 
 fn main() {
-    let mut palins:Vec<PalindromeData> = parse_fasta("dna1.fasta");
+    let mut palins:Vec<PalindromeData> = parse_fasta("sequence.txt");
     for p in &palins {
         println!("{}", p)
     }
     palins.clear();
 
-    println!("{}", wfa("AGGTCATCG", "money"))
+    //println!("{}", wfa("AGGTCATCG", "money"));
 }

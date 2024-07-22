@@ -4,7 +4,7 @@ use std::cmp::max;
 static GAP_PENALTY: i32 = 2;
 static MISMATCH_PENALTY: i32 = 2;
 static MATCH_BONUS: u32 = 1;
-pub static MISMATCH_LENGTH_RATIO: f32 = 0.3;
+pub static MISMATCH_LENGTH_RATIO: f32 = 0.5;
 
 pub fn smith_waterman(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
