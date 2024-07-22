@@ -1,5 +1,5 @@
-use crate::exact_matches::{self, match_exact};
-use crate::myers::{self, wfa_palins};
+use crate::exact_matches::match_exact;
+use crate::myers::wfa_palins;
 use crate::output::PalindromeData;
 use crate::smith_waterman::smith_waterman;
 use std::fs::File;

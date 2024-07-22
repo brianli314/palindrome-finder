@@ -61,7 +61,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             continue;
         }
         let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
-        if (x + y) as u32 >= 5{
+        if (x + y) as u32 >= PALINDROME_LENGTH{
             let palin = PalindromeData::new(
                 (index - y) as u32, 
                 (index + x - 1) as u32, 

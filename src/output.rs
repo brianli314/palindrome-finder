@@ -1,7 +1,5 @@
 use core::fmt;
-use std::{fs::{self, File}, io::Error, io::Write};
-
-use crate::fasta_parsing::Fasta;
+use std::{fs::File, io::Write};
 
 #[derive(Debug)]
 pub struct PalindromeData {
