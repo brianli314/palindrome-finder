@@ -9,7 +9,7 @@ use output::write_file;
 use output::PalindromeData;
 
 fn main() {
-    let palins:Vec<PalindromeData> = parse_fasta("dna1.fasta");
+    let palins:Vec<PalindromeData> = parse_fasta("sequence.txt");
     //dbg!(&palins);
     write_file(palins, "sequencefasta.txt")
 }

@@ -1,11 +1,15 @@
 use std::{cmp::max, mem};
 
 use crate::{
-    exact_matches::{get_complement, PALINDROME_LENGTH},
+    exact_matches::get_complement,
     fasta_parsing::Fasta,
     output::PalindromeData,
-    smith_waterman::MISMATCH_LENGTH_RATIO,
 };
+
+
+static PALINDROME_LENGTH: usize = 5;
+pub static MISMATCH_LENGTH_RATIO: f32 = 0.5;
+static GAP_SIZE: usize = 0;
 
 pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
@@ -16,10 +20,10 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
 
     while index <= len {
         let mut edit_dist = 0;
-        let mut wf_len = 3;
-        wf[0] = 0;
-        wf[1] = 0;
-        wf[2] = 0;
+        let mut wf_len = GAP_SIZE + 1;
+        for i in 0..=wf_len{
+            wf[i] = 0;
+        }
         let mut max_index = 0;
         'outer: while (edit_dist as f32)/(wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
             for i in 0..wf_len {
@@ -60,8 +64,8 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             index += 1;
             continue;
         }
-        let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
-        if (x + y) as u32 >= PALINDROME_LENGTH{
+        let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
+        if x + y>= PALINDROME_LENGTH{
             let palin = PalindromeData::new(
                 (index - y) as u32, 
                 (index + x - 1) as u32, 
@@ -71,6 +75,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                 fasta.get_name(), 
                 seq[index - y..index + x].to_string());
             output.push(palin);
+            dbg!(index);
             
         }
         index += wf[max_index];
@@ -115,7 +120,7 @@ pub fn wfa(seq: &str, seq2: &str) -> u32 {
 }
 
 fn get_xy(wf_len: usize, index: usize, length: usize) -> (usize, usize) {
-    let offset = (((wf_len - 3) / 2) + 1) as i32 - (index as i32);
+    let offset = (((wf_len - (GAP_SIZE + 1)) / 2)) as i32 - (index as i32);
     if offset >= 0 {
         return (length, length + offset as usize);
     } else {

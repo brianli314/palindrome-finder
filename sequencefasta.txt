@@ -1,0 +1,2 @@
+Start: 0, End: 10, Length: 11, Gap Length: 0, Mismatches: 3, Name: , Sequence: AAAAGGCTTAG
+Start: 0, End: 20, Length: 21, Gap Length: 0, Mismatches: 4, Name: , Sequence: AAAAGGCTTAGCTAGCCTGGG
