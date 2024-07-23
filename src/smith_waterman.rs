@@ -22,7 +22,7 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
             None => panic!("Bad Matrix"),
         };
         
-        if square <= 13{
+        if square <= 5{
             break
         }
         let (mut x, mut y) = matrix.get_index(square);
@@ -68,7 +68,7 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
 }
 
 fn fill_matrix(seq: &str) -> Matrix<u32> {
-    let complement: String = seq_compliment(seq).chars().rev().collect();
+    let complement: String = seq_complement(seq).chars().rev().collect();
     let length = seq.len();
     let mut matrix: Matrix<u32> = Matrix::new(length + 1, length + 1);
     for row in 1..length + 1 {

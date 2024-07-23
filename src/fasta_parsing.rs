@@ -3,7 +3,7 @@ use crate::myers::wfa_palins;
 use crate::output::PalindromeData;
 use crate::smith_waterman::smith_waterman;
 use std::fs::File;
-use std::io::{prelude::*, BufReader, Lines};
+use std::io::{BufRead, BufReader, Lines};
 use std::mem;
 
 #[derive(Debug, Clone)]

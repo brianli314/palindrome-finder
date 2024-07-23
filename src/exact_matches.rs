@@ -49,7 +49,7 @@ fn count_palindrome(start: u32, end: u32, seq: &str) -> u32 {
     return count;
 }
 
-pub fn seq_compliment(seq: &str) -> String {
+pub fn seq_complement(seq: &str) -> String {
     let mut output = String::new();
     for i in 0..seq.len() {
         output += get_complement(&seq[i..=i]);

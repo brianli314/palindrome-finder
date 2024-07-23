@@ -1,0 +1,4 @@
+Start: 81, End: 86, Length: 6, Gap Length: 0, Mismatches: 1, Name: Test1, Sequence: GTACCC
+Start: 101, End: 106, Length: 6, Gap Length: 0, Mismatches: 1, Name: Test1, Sequence: AAAATT
+Start: 106, End: 111, Length: 6, Gap Length: 0, Mismatches: 1, Name: Test1, Sequence: TTTATT
+Start: 131, End: 138, Length: 8, Gap Length: 0, Mismatches: 1, Name: Test1, Sequence: TTTAACCA
