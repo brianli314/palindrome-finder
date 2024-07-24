@@ -49,6 +49,6 @@ pub fn write_file(palins: Vec<PalindromeData>, file_name: &str){
         Err(error) => panic!("Problem opening file {error}"),
     };
     for palin in palins{
-        let _ = output.write(&(palin.to_string() + "\n").as_bytes());
+        let _ = output.write((palin.to_string() + "\n").as_bytes());
     }
 }

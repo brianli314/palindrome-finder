@@ -84,5 +84,5 @@ fn fill_matrix(seq: &str) -> Matrix<u32> {
             matrix[[row, col]] = max(del, max(sub, insert));
         }
     }
-    return matrix;
+    matrix
 }

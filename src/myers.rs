@@ -1,4 +1,3 @@
-use core::num;
 use std::{
     cmp::{max, min},
     mem,
@@ -8,7 +7,7 @@ use crate::{exact_matches::seq_complement, fasta_parsing::Fasta, output::Palindr
 
 static PALINDROME_LENGTH: usize = 5;
 pub static MISMATCH_LENGTH_RATIO: f32 = 0.2;
-static GAP_SIZE: usize = 0;
+static GAP_SIZE: usize = 2;
 
 pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
@@ -23,11 +22,13 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         for i in 0..=wf_len {
             wf[i] = 0;
         }
+        let mut gap = 0;
         let mut max_index = 0;
         'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
             for i in 0..wf_len {
                 let (mut x, mut y) = get_xy(wf_len, i, wf[i]);
-                x = x + index;
+                x += index;
+
                 let mut count = 8;
                 let mut counter = 0;
 
@@ -35,7 +36,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                     let len1 = min(len - x, 8);
                     let len2 = min(index - y, 8);
                     count = count_matching(
-                        &seq[x..x+len1].as_bytes(),
+                        seq[x..x + len1].as_bytes(),
                         seq_complement(
                             &seq[index - y - len2..index - y]
                                 .chars()
@@ -49,7 +50,8 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                     counter += count;
                 }
                 wf[i] += counter as usize;
-                /* 
+
+                /*
                 while x < len
                     && y < index
                     && &seq[x..=x] == get_complement(&seq[index - y - 1..=index - y - 1])
@@ -66,6 +68,10 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                     break 'outer;
                 }
             }
+            
+            if wf_len == GAP_SIZE + 1{
+                gap = max_index;
+            }
             next_wave(&mut wf, &mut wf_next, wf_len);
             max_index += 1;
             edit_dist += 1;
@@ -81,7 +87,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                 (index - y) as u32,
                 (index + x - 1) as u32,
                 (x + y) as u32,
-                0,
+                gap as u32,
                 edit_dist,
                 fasta.get_name(),
                 seq[index - y..index + x].to_string(),
@@ -93,24 +99,18 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     }
 }
 
-pub fn count_matching(seq1: &[u8], seq2: &[u8]) -> u32 {
+
+fn count_matching(seq1: &[u8], seq2: &[u8]) -> u32 {
     assert!(seq1.len() <= 8);
     assert!(seq2.len() <= 8);
-    let mut buf1 = [0; 8];
+    let mut buf1 = [255; 8];
     let mut buf2 = [0; 8];
-    buf1[0..seq1.len()].copy_from_slice(seq1);
-    buf2[0..seq2.len()].copy_from_slice(seq2);
-    dbg!(buf1, buf2);
+    buf1[..seq1.len()].copy_from_slice(seq1);
+    buf2[..seq2.len()].copy_from_slice(seq2);
     let num1 = u64::from_le_bytes(buf1);
-        /*| 1_u64
-            .checked_shl((8 * (8 - seq1.len())) as u32)
-            .unwrap_or(0)
-            .wrapping_sub(1);*/
     let num2 = u64::from_le_bytes(buf2);
-    dbg!(num1, num2);
     let diff = num1 ^ num2;
-    dbg!(diff);
-    return diff.leading_zeros()/8;
+    diff.trailing_zeros() / 8
 }
 
 fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
@@ -137,7 +137,7 @@ pub fn wfa(seq: &str, seq2: &str) -> u32 {
     loop {
         for i in 0..wf_len {
             let (mut x, mut y) = get_xy(wf_len, i, wavefront[i]);
-            while x < seq.len() && y < seq2.len() && &seq[x..=x] == &seq2[y..=y] {
+            while x < seq.len() && y < seq2.len() && seq[x..=x] == seq2[y..=y] {
                 wavefront[i] += 1;
                 x += 1;
                 y += 1;
@@ -155,8 +155,8 @@ pub fn wfa(seq: &str, seq2: &str) -> u32 {
 fn get_xy(wf_len: usize, index: usize, length: usize) -> (usize, usize) {
     let offset = ((wf_len - (GAP_SIZE + 1)) / 2) as i32 - (index as i32);
     if offset >= 0 {
-        return (length, length + offset as usize);
+        (length, length + offset as usize)
     } else {
-        return (length + (offset.abs()) as usize, length);
+        (length + offset.unsigned_abs() as usize, length)
     }
 }
