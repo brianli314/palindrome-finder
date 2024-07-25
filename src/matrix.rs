@@ -9,15 +9,15 @@ pub struct Matrix<T> {
 }
 impl<T> Matrix<T>{
     pub fn get_data(&self) -> &Vec<T>{
-        return &self.data;
+        &self.data
     }
 
     pub fn get_row(&self) -> usize{
-        return self.rows;
+        self.rows
     }
 
     pub fn get_col(&self) -> usize{
-        return self.columns;
+        self.columns
     }
 }
 

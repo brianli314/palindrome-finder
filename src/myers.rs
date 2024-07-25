@@ -8,12 +8,16 @@ use crate::{exact_matches::seq_complement, fasta_parsing::Fasta, output::Palindr
 static PALINDROME_LENGTH: usize = 5;
 pub static MISMATCH_LENGTH_RATIO: f32 = 0.2;
 static GAP_SIZE: usize = 2;
+static MATCH: f32 = 1.0;
+static MIS: f32 = -1.5;
+static INDEL: f32 = MIS - MATCH/2.0;
 
 pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
     let len = seq.len();
     let mut wf = vec![0; len];
     let mut wf_next = vec![0; len];
+    let mut largest_score = vec![0; len];
     let mut index = 0;
 
     while index <= len {
@@ -64,6 +68,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                 if wf[i] > wf[max_index] {
                     max_index = i;
                 }
+
                 if x >= len || y >= index {
                     break 'outer;
                 }
@@ -72,6 +77,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             if wf_len == GAP_SIZE + 1{
                 gap = max_index;
             }
+
             next_wave(&mut wf, &mut wf_next, wf_len);
             max_index += 1;
             edit_dist += 1;
@@ -99,6 +105,9 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     }
 }
 
+fn calculate_score(x: u32, y: u32, d: u32) -> f32{
+    (x+y) as f32 * (MATCH/2.0) - (d as f32)*(MATCH - MIS)
+}
 
 fn count_matching(seq1: &[u8], seq2: &[u8]) -> u32 {
     assert!(seq1.len() <= 8);
@@ -108,7 +117,7 @@ fn count_matching(seq1: &[u8], seq2: &[u8]) -> u32 {
     buf1[..seq1.len()].copy_from_slice(seq1);
     buf2[..seq2.len()].copy_from_slice(seq2);
     let num1 = u64::from_le_bytes(buf1);
-    let num2 = u64::from_le_bytes(buf2);
+    let num2 = u64::from_be_bytes(buf2);
     let diff = num1 ^ num2;
     diff.trailing_zeros() / 8
 }

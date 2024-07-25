@@ -46,7 +46,7 @@ fn count_palindrome(start: u32, end: u32, seq: &str) -> u32 {
         next += 1;
     }
 
-    return count;
+    count
 }
 
 pub fn seq_complement(seq: &str) -> String {
@@ -54,18 +54,18 @@ pub fn seq_complement(seq: &str) -> String {
     for i in 0..seq.len() {
         output += get_complement(&seq[i..=i]);
     }
-    return output;
+    output
 }
 pub fn get_complement(bp: &str) -> &str {
     let bpu = bp.to_uppercase();
-    let letter = match &bpu[0..=0] {
+    
+    (match &bpu[0..=0] {
         "A" => "T",
         "T" => "A",
         "C" => "G",
         "G" => "C",
         _ => panic!("Not a base pair"),
-    };
-    return letter;
+    }) as _
 }
 pub fn is_complement(base1: &str, base2: &str) -> bool {
     return get_complement(base1) == base2;
