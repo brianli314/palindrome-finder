@@ -1,6 +1,6 @@
-Start: 0, End: 12, Length: 13, Gap Length: 2, Mismatches: 3, Name: Test1, Sequence: AGCTTTTCATTCT
-Start: 0, End: 24, Length: 25, Gap Length: 1, Mismatches: 5, Name: Test1, Sequence: AGCTTTTCATTCTGACTGCAACGGG
-Start: 13, End: 33, Length: 21, Gap Length: 1, Mismatches: 6, Name: Test1, Sequence: GACTGCAACGGGCAATATGTC
+Start: 2, End: 18, Length: 17, Gap Length: 0, Mismatches: 5, Name: Test1, Sequence: CTTTTCATTCTGACTGC
+Start: 10, End: 21, Length: 12, Gap Length: 1, Mismatches: 4, Name: Test1, Sequence: TCTGACTGCAAC
+Start: 7, End: 35, Length: 29, Gap Length: 0, Mismatches: 8, Name: Test1, Sequence: CATTCTGACTGCAACGGGCAATATGTCTC
 Start: 26, End: 45, Length: 20, Gap Length: 1, Mismatches: 6, Name: Test1, Sequence: AATATGTCTCTGTGTGGATT
 Start: 30, End: 60, Length: 31, Gap Length: 0, Mismatches: 8, Name: Test1, Sequence: TGTCTCTGTGTGGATTAAAAAAAGAGTGTCT
 Start: 48, End: 74, Length: 27, Gap Length: 1, Mismatches: 7, Name: Test1, Sequence: AAAAAGAGTGTCTGATAGCAGCTTCTG

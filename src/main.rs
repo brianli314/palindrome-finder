@@ -10,6 +10,5 @@ use output::PalindromeData;
 
 fn main() {
     let palins: Vec<PalindromeData> = parse_fasta("dna1.fasta");
-    //dbg!(&palins);
     write_file(palins, "palindrome_data.txt");
 }

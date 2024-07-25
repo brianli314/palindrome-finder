@@ -6,18 +6,18 @@ use std::mem;
 
 #[derive(Debug, Clone)]
 pub struct Fasta {
-    name: String,
-    sequence: String,
+    pub name: String,
+    pub sequence: String,
 }
 impl Fasta {
     pub fn new(name: String, sequence: String) -> Self {
         Self { name, sequence }
     }
-    pub fn get_sequence(&self) -> String {
-        self.sequence.clone()
+    pub fn get_sequence(&self) -> &str {
+        &self.sequence
     }
-    pub fn get_name(&self) -> String {
-        self.name.clone()
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -68,9 +68,6 @@ impl FastaIterator {
     }
 }
 
-// TODO: Try and make this function more generic. You can do this in two ways:
-// 1. Have this output an owned string which incurs some overhead but not much
-// 2. Have this function take in a closure as an input. Read https://doc.rust-lang.org/book/ch13-01-closures.html
 pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
     let file = match File::open(name) {
         Ok(file) => file,
@@ -81,7 +78,8 @@ pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
     let mut palins = Vec::new();
     let iterator = FastaIterator::new(reader);
     for line in iterator {
-        run_search(line, &mut palins, &mut output)
+        run_search(line, &mut palins, &mut output);
+        
     }
     output
 }

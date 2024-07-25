@@ -1,16 +1,14 @@
-use crate::{
-    exact_matches::*, fasta_parsing::Fasta, matrix::Matrix, myers::MISMATCH_LENGTH_RATIO,
-    output::PalindromeData,
-};
+use crate::{exact_matches::*, fasta_parsing::Fasta, matrix::Matrix, output::PalindromeData};
 use std::cmp::max;
 
 static GAP_PENALTY: i32 = 2;
 static MISMATCH_PENALTY: i32 = 2;
 static MATCH_BONUS: u32 = 1;
+static MISMATCH_LENGTH_RATIO: f32 = 0.3;
 
 pub fn smith_waterman(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
-    let mut matrix = fill_matrix(&seq);
+    let mut matrix = fill_matrix(seq);
     //println!("{}", matrix);
     traceback(fasta, &mut matrix, output)
 }
@@ -63,7 +61,7 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
                 len,
                 0,
                 mismatches,
-                fasta.get_name(),
+                fasta.get_name().to_owned(),
                 palin.chars().rev().collect(),
             ));
         }
