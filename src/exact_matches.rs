@@ -4,7 +4,7 @@ pub static PALINDROME_LENGTH: u32 = 5;
 pub static GAP_LENGTH: u32 = 6;
 pub static NUM_MISMATCH: u32 = 0;
 
-pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>){
+pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.get_sequence();
     for i in 0..seq.len() as u32 {
         let mut j = 1;
@@ -15,10 +15,11 @@ pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>){
                     i + 1 - length,
                     i + length + j - 1,
                     length,
-                    j-1,
+                    j - 1,
                     0,
                     fasta.get_name(),
-                    seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned());
+                    seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned(),
+                );
                 output.push(palin);
             }
             j += 1;
@@ -58,7 +59,7 @@ pub fn seq_complement(seq: &str) -> String {
 }
 pub fn get_complement(bp: &str) -> &str {
     let bpu = bp.to_uppercase();
-    
+
     (match &bpu[0..=0] {
         "A" => "T",
         "T" => "A",

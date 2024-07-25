@@ -1,7 +1,5 @@
-use crate::exact_matches::match_exact;
 use crate::myers::wfa_palins;
 use crate::output::PalindromeData;
-use crate::smith_waterman::smith_waterman;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::mem;
@@ -16,10 +14,10 @@ impl Fasta {
         Self { name, sequence }
     }
     pub fn get_sequence(&self) -> String {
-        return self.sequence.clone();
+        self.sequence.clone()
     }
     pub fn get_name(&self) -> String {
-        return self.name.clone();
+        self.name.clone()
     }
 }
 
@@ -33,15 +31,14 @@ impl Iterator for FastaIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut seq = String::new();
-        while let Some(line) = self.lines_reader.next() {
+        for line in self.lines_reader.by_ref() {
             let line = line.expect("Failed to read from fasta!");
-            if line.starts_with(">") {
-                if seq.len() == 0 {
-                    self.curr_name = line[1..].to_owned();
+            if line.starts_with('>') {
+                let mut name = line.strip_prefix('>').unwrap().to_owned();
+                if seq.is_empty() {
+                    name.clone_into(&mut self.curr_name);
                     continue;
                 }
-
-                let mut name = line[1..].to_owned();
                 mem::swap(&mut name, &mut self.curr_name);
                 return Some(Fasta {
                     name,

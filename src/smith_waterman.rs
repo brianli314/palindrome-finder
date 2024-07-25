@@ -1,4 +1,7 @@
-use crate::{exact_matches::*, fasta_parsing::Fasta, matrix::Matrix, output::PalindromeData, myers::MISMATCH_LENGTH_RATIO};
+use crate::{
+    exact_matches::*, fasta_parsing::Fasta, matrix::Matrix, myers::MISMATCH_LENGTH_RATIO,
+    output::PalindromeData,
+};
 use std::cmp::max;
 
 static GAP_PENALTY: i32 = 2;
@@ -21,18 +24,20 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
             Some(data) => *data,
             None => panic!("Bad Matrix"),
         };
-        
-        if square <= 5{
-            break
+
+        if square <= 5 {
+            break;
         }
         let (mut x, mut y) = matrix.get_index(square);
-        while square != 0 && (mismatches as f32) / (palin.len() as f32 + 0.01) <= MISMATCH_LENGTH_RATIO {
+        while square != 0
+            && (mismatches as f32) / (palin.len() as f32 + 0.01) <= MISMATCH_LENGTH_RATIO
+        {
             let sub = matrix[[x - 1, y - 1]];
             let del = matrix[[x - 1, y]];
             let ins = matrix[[x, y - 1]];
 
             matrix[[x, y]] = 0;
-           
+
             if sub >= del && sub >= ins {
                 x -= 1;
                 y -= 1;
@@ -44,7 +49,7 @@ fn traceback(fasta: Fasta, matrix: &mut Matrix<u32>, output: &mut Vec<Palindrome
                 y -= 1;
                 palin += "-"
             }
-            
+
             if square < matrix[[x, y]] {
                 mismatches += 1;
             }
