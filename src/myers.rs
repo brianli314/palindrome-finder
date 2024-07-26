@@ -14,7 +14,7 @@ static MIS: f32 = -1.5;
 static X: f32 = 5.0;
 
 pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
-    //Getting the sequence as bits where A = !T, C = !g
+    //Getting the sequence as bits where A = !T, C = !G
     let mut seq_clone = fasta.sequence.clone();
     let bytes_seq = unsafe { seq_clone.as_bytes_mut() };
     sequence_to_bytes(bytes_seq);
@@ -22,7 +22,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.sequence;
 
     let len = seq.len();
-    let mut index = 0;
+    let mut index = 1;
 
     let mut wf = vec![0; len];
     let mut wf_next = vec![0; len];
@@ -40,7 +40,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
+        'outer: while edit_dist <= 11{
             for i in 0..wf_len {
 
                 //Extend wave along the matches
@@ -59,12 +59,12 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             }
 
             let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
-            let curr_score = calculate_score(x + 1, y + 1, edit_dist);
+            let curr_score = calculate_score(x, y, edit_dist);
             max_score = f32::max(max_score, curr_score);
 
             //X-drop
             if curr_score < max_score - X {
-                break;
+                //break;
             }
 
             //Getting the gap size, based on initial wavefront formation
@@ -83,7 +83,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             continue;
         }
         //x,y are coordinates of the longest wavepoint
-        let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
+        let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
         if x + y >= PALINDROME_LENGTH {
             let palin = PalindromeData::new(
                 (index - y) as u32,
@@ -128,7 +128,7 @@ fn extend_wave(mut x: usize, mut y: usize, index: usize, seq: &[u8]) -> u32 {
         let len2 = min(index - y, 8);
         count = count_matching(&seq[x..x + len1], &seq[index - y - len2..index - y]);
         x += count as usize;
-        y += count as usize;
+        y += count as usize; 
         counter += count;
     }
     counter
