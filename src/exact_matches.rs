@@ -9,7 +9,7 @@ pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     for i in 0..seq.len() as u32 {
         let mut j = 1;
         while i >= j && j <= GAP_LENGTH {
-            let length = count_palindrome(i, i + j, &seq);
+            let length = count_palindrome(i, i + j, seq);
             if length >= PALINDROME_LENGTH {
                 let palin = PalindromeData::new(
                     i + 1 - length,
