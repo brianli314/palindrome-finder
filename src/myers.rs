@@ -6,12 +6,12 @@ use std::{
 use crate::{fasta_parsing::Fasta, output::PalindromeData};
 
 static PALINDROME_LENGTH: usize = 5;
-static MISMATCH_LENGTH_RATIO: f32 = 0.9;
-static GAP_SIZE: usize = 2;
+static MISMATCH_LENGTH_RATIO: f32 = 0.5;
+static GAP_SIZE: usize = 0;
 static MATCH: f32 = 1.0;
 static MIS: f32 = -1.5;
 
-static X: f32 = 5.0;
+static X: f32 = 2.0;
 
 pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     //Getting the sequence as bits where A = !T, C = !G
@@ -22,7 +22,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     let seq = fasta.sequence;
 
     let len = seq.len();
-    let mut index = 1;
+    let mut index = 0;
 
     let mut wf = vec![0; len];
     let mut wf_next = vec![0; len];
@@ -40,7 +40,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while edit_dist <= 11{
+        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
             for i in 0..wf_len {
 
                 //Extend wave along the matches
@@ -53,7 +53,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                     max_index = i;
                 }
 
-                if x >= len || y >= index {
+                if x == len || y == index {
                     break 'outer;
                 }
             }
@@ -64,7 +64,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
 
             //X-drop
             if curr_score < max_score - X {
-                //break;
+                break;
             }
 
             //Getting the gap size, based on initial wavefront formation
@@ -85,6 +85,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         //x,y are coordinates of the longest wavepoint
         let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
         if x + y >= PALINDROME_LENGTH {
+            //dbg!(x, y, index, max_index, wf[max_index], wf_len);
             let palin = PalindromeData::new(
                 (index - y) as u32,
                 (index + x - 1) as u32,
@@ -96,7 +97,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             );
             output.push(palin);
         }
-        index += wf[max_index];
+        index += max(x, 1);
     }
 }
 
@@ -159,6 +160,11 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
             wf_next[i + 2] = wf[i];
             wf_next[i + 1] = max(wf[i - 1], wf[i] + 1);
         }
+
+        if wf_len == 1{
+            wf_next[i+2] = wf[i];
+        }
+        
     }
     mem::swap(wf, wf_next);
 }
