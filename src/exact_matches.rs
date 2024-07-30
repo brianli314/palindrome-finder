@@ -1,16 +1,15 @@
-use crate::{fasta_parsing::Fasta, output::PalindromeData};
+use crate::{command_line::PalinArgs, fasta_parsing::Fasta, output::PalindromeData};
 
 pub static PALINDROME_LENGTH: u32 = 5;
-pub static GAP_LENGTH: u32 = 6;
-pub static NUM_MISMATCH: u32 = 0;
+pub static GAP_LENGTH: u32 = 2;
 
-pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>) {
+pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinArgs) {
     let seq = fasta.get_sequence();
     for i in 0..seq.len() as u32 {
         let mut j = 1;
-        while i >= j && j <= GAP_LENGTH {
+        while i >= j && j <= args.gap_len as u32 {
             let length = count_palindrome(i, i + j, seq);
-            if length >= PALINDROME_LENGTH {
+            if length >= args.min_len as u32 {
                 let palin = PalindromeData::new(
                     i + 1 - length,
                     i + length + j - 1,
@@ -38,7 +37,7 @@ fn count_palindrome(start: u32, end: u32, seq: &str) -> u32 {
             mismatches += 1;
         }
 
-        if mismatches > NUM_MISMATCH {
+        if mismatches > 0 {
             break;
         }
 

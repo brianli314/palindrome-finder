@@ -1,6 +1,7 @@
 use core::fmt;
 use std::{fs::File, io::Write};
 
+
 #[derive(Debug)]
 pub struct PalindromeData {
     start: u32,
@@ -37,8 +38,14 @@ impl fmt::Display for PalindromeData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Start: {}, End: {}, Length: {}, Gap Length: {}, Mismatches: {}, Name: {}, Sequence: {}",
-            self.start, self.end, self.length, self.gap, self.mismatches, self.fasta, self.sequence, 
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}", 
+            self.start, 
+            self.end, 
+            self.length, 
+            self.gap, 
+            self.mismatches, 
+            self.fasta, 
+            self.sequence, 
         )
     }
 }
@@ -46,9 +53,13 @@ impl fmt::Display for PalindromeData {
 pub fn write_file(palins: Vec<PalindromeData>, file_name: &str){
     let mut output = match File::create(file_name){
         Ok(file) => file,
-        Err(error) => panic!("Problem opening file {error}"),
+        Err(error) => panic!("Problem creating file {error}"),
     };
+    let _ = writeln!(output, 
+        "Start \t End\tLength\tGap Length\tMismatches\tSeq name\tSequence\n"
+    );
     for palin in palins{
-        let _ = output.write((palin.to_string() + "\n").as_bytes());
+        let _ = writeln!(output, "{}", palin);
     }
+    
 }

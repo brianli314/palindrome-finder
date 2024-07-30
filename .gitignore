@@ -1,3 +1,4 @@
 /target
 *.fa
 *.fa.*
+*.tsv

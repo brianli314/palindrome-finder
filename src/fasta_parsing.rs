@@ -1,3 +1,7 @@
+use crate::command_line::WfaCommand;
+use crate::command_line::{PalinArgs, AlgorithmType::ExactMatch, AlgorithmType::Wfa};
+use crate::exact_matches::match_exact;
+//use crate::exact_matches::match_exact;
 use crate::myers::wfa_palins;
 use crate::output::PalindromeData;
 use std::fs::File;
@@ -24,6 +28,7 @@ impl Fasta {
 pub struct FastaIterator {
     lines_reader: Lines<BufReader<File>>,
     curr_name: String,
+    filter: String
 }
 
 impl Iterator for FastaIterator {
@@ -35,8 +40,10 @@ impl Iterator for FastaIterator {
         for line in self.lines_reader.by_ref() {
             let line = line.expect("Failed to read from fasta!");
             
-            if line.contains("chromosome 21") {
+            if line.contains(&self.filter) {
                 right_chromosome = true;
+            } else if line.starts_with('>') && !line.contains(&self.filter) {
+                right_chromosome = false;
             }
 
             if right_chromosome {
@@ -68,31 +75,46 @@ impl Iterator for FastaIterator {
 }
 
 impl FastaIterator {
-    pub fn new(bufreader: BufReader<File>) -> Self {
+    pub fn new(bufreader: BufReader<File>, filter: String) -> Self {
         Self {
             lines_reader: bufreader.lines(),
             curr_name: String::new(),
+            filter
         }
     }
 }
 
-pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
-    let file = match File::open(name) {
+pub fn parse_fasta(args: &PalinArgs) -> Vec<PalindromeData> {
+    let file = match File::open(&args.input_file) {
         Ok(file) => file,
         Err(error) => panic!("Problem opening the file: {error:?}"),
     };
+
     let reader = BufReader::new(file);
-    let mut output: Vec<PalindromeData> = Vec::new();
-    let mut palins = Vec::new();
-    let iterator = FastaIterator::new(reader);
-    for line in iterator {
-        run_search(line, &mut palins, &mut output);
+    let mut output = Vec::new();
+    let iterator = FastaIterator::new(reader, args.filter.clone());
+
+    match &args.command{
+        Wfa(cmds) => run_wfa(args, cmds, iterator, &mut output),
+        ExactMatch => run_exact_match(args, iterator, &mut output),
     }
     output
 }
 
-fn run_search(fasta: Fasta, palins: &mut Vec<PalindromeData>, output: &mut Vec<PalindromeData>) {
-    wfa_palins(fasta, palins);
-    output.append(palins);
-    palins.clear();
+fn run_wfa(args: &PalinArgs, cmds: &WfaCommand, iterator: FastaIterator, output: &mut Vec<PalindromeData>){
+    let mut palins= Vec::new();
+    for line in iterator{
+        wfa_palins(line, output, args, cmds);
+        output.append(&mut palins);
+        palins.clear();
+    }
+}
+
+fn run_exact_match(args: &PalinArgs, iterator: FastaIterator, output: &mut Vec<PalindromeData>){
+    let mut palins = Vec::new();
+    for line in iterator {
+        match_exact(line, output, args);
+        output.append(&mut palins);
+        palins.clear();
+    }
 }

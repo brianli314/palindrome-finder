@@ -4,17 +4,10 @@ use std::{
     mem,
 };
 
-use crate::{fasta_parsing::Fasta, output::PalindromeData};
+use crate::{command_line::{PalinArgs, WfaCommand}, fasta_parsing::Fasta, output::PalindromeData};
 
-static PALINDROME_LENGTH: usize = 5;
-static MISMATCH_LENGTH_RATIO: f32 = 0.5;
-static GAP_SIZE: usize = 1;
-static MATCH: f32 = 1.0;
-static MIS: f32 = -1.5;
+pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinArgs, cmds: &WfaCommand) {
 
-static X: f32 = 2.0;
-
-pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
     //Getting the sequence as bits where A = !T, C = !G
     let mut seq_clone = fasta.sequence.clone();
     let bytes_seq = unsafe { seq_clone.as_bytes_mut() };
@@ -27,12 +20,12 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
 
     let mut wf = vec![0; len];
     let mut wf_next = vec![0; len];
-    let first_wave = vec![0; GAP_SIZE + 2];
+    let first_wave = vec![0; args.gap_len + 2];
 
     while index <= len {
 
         let mut edit_dist = 0;
-        let mut wf_len = GAP_SIZE + 1;
+        let mut wf_len = args.gap_len + 1;
         let mut gap = 0;
 
         let mut max_index = 0;
@@ -41,11 +34,11 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= MISMATCH_LENGTH_RATIO {
+        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= cmds.mismatch_len_ratio {
             for i in 0..wf_len {
 
                 //Extend wave along the matches
-                let (mut x, y) = get_xy(wf_len, i, wf[i]);
+                let (mut x, y) = get_xy(wf_len, i, wf[i], args.gap_len);
                 x += index;
 
                 wf[i] += extend_wave(x, y, index, bytes_seq) as usize;
@@ -59,17 +52,17 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
                 }
             }
 
-            let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
-            let curr_score = calculate_score(x, y, edit_dist);
+            let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
+            let curr_score = calculate_score(x, y, edit_dist, cmds);
             max_score = f32::max(max_score, curr_score);
 
             //X-drop
-            if curr_score < max_score - X {
+            if curr_score < max_score - cmds.x_drop {
                 break;
             }
 
             //Getting the gap size, based on initial wavefront formation
-            if wf_len == GAP_SIZE + 1 {
+            if wf_len == args.gap_len + 1 {
                 gap = max_index;
             }
 
@@ -84,8 +77,8 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             continue;
         }
         //x,y are coordinates of the longest wavepoint
-        let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
-        if x + y >= PALINDROME_LENGTH {
+        let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
+        if x + y >= args.min_len {
             //dbg!(x, y, index, max_index, wf[max_index], wf_len);
             let palin = PalindromeData::new(
                 (index - y) as u32,
@@ -103,8 +96,8 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
 }
 
 //Evaluates score using formula from X-drop paper
-fn calculate_score(x: usize, y: usize, d: u32) -> f32 {
-    (x + y) as f32 * (MATCH / 2.0) - (d as f32) * (MATCH - MIS)
+fn calculate_score(x: usize, y: usize, d: u32, cmds: &WfaCommand) -> f32 {
+    (x + y) as f32 * (cmds.match_bonus / 2.0) - (d as f32) * (cmds.match_bonus - cmds.mismatch_penalty)
 }
 
 //Converts the sequence to bytes, where A = !T, C = !G
@@ -170,8 +163,8 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
     mem::swap(wf, wf_next);
 }
 
-fn get_xy(wf_len: usize, index: usize, length: usize) -> (usize, usize) {
-    let offset = ((wf_len - (GAP_SIZE + 1)) / 2) as i32 - (index as i32);
+fn get_xy(wf_len: usize, index: usize, length: usize, gap_size: usize) -> (usize, usize) {
+    let offset = ((wf_len - (gap_size + 1)) / 2) as i32 - (index as i32);
     if offset >= 0 {
         (length, length + offset as usize)
     } else {
@@ -189,7 +182,7 @@ pub fn wfa(seq: &str, seq2: &str) -> u32 {
     loop {
         #[allow(clippy::needless_range_loop)]
         for i in 0..wf_len {
-            let (mut x, mut y) = get_xy(wf_len, i, wavefront[i]);
+            let (mut x, mut y) = get_xy(wf_len, i, wavefront[i], 0);
             while x < seq.len() && y < seq2.len() && seq[x..=x] == seq2[y..=y] {
                 wavefront[i] += 1;
                 x += 1;
