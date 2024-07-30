@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     cmp::{max, min},
     mem,
@@ -7,7 +8,7 @@ use crate::{fasta_parsing::Fasta, output::PalindromeData};
 
 static PALINDROME_LENGTH: usize = 5;
 static MISMATCH_LENGTH_RATIO: f32 = 0.5;
-static GAP_SIZE: usize = 0;
+static GAP_SIZE: usize = 1;
 static MATCH: f32 = 1.0;
 static MIS: f32 = -1.5;
 
@@ -83,7 +84,7 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>) {
             continue;
         }
         //x,y are coordinates of the longest wavepoint
-        let (x, y) = get_xy(wf_len, max_index, wf[max_index] - 1);
+        let (x, y) = get_xy(wf_len, max_index, wf[max_index]);
         if x + y >= PALINDROME_LENGTH {
             //dbg!(x, y, index, max_index, wf[max_index], wf_len);
             let palin = PalindromeData::new(
@@ -114,7 +115,7 @@ fn sequence_to_bytes(seq: &mut [u8]) {
             84 | 116 => 253, // T, t
             67 | 99 => 3,    // C, c
             71 | 103 => 252, // G, g
-            _ => panic!("Not a base pair"),
+            _ => panic!("Not a base pair")
         };
     }
 }

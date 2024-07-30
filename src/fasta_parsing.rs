@@ -31,21 +31,29 @@ impl Iterator for FastaIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut seq = String::new();
+        let mut right_chromosome = false;
         for line in self.lines_reader.by_ref() {
             let line = line.expect("Failed to read from fasta!");
-            if line.starts_with('>') {
-                let mut name = line.strip_prefix('>').unwrap().to_owned();
-                if seq.is_empty() {
-                    name.clone_into(&mut self.curr_name);
-                    continue;
+            
+            if line.contains("chromosome 21") {
+                right_chromosome = true;
+            }
+
+            if right_chromosome {
+                if line.starts_with('>') {
+                    let mut name = line.strip_prefix('>').unwrap().to_owned();
+                    if seq.is_empty() {
+                        name.clone_into(&mut self.curr_name);
+                        continue;
+                    }
+                    mem::swap(&mut name, &mut self.curr_name);
+                    return Some(Fasta {
+                        name,
+                        sequence: seq,
+                    });
+                } else {
+                    seq += &line;
                 }
-                mem::swap(&mut name, &mut self.curr_name);
-                return Some(Fasta {
-                    name,
-                    sequence: seq,
-                });
-            } else {
-                seq += &line;
             }
         }
         if seq.is_empty() {
@@ -79,7 +87,6 @@ pub fn parse_fasta(name: &str) -> Vec<PalindromeData> {
     let iterator = FastaIterator::new(reader);
     for line in iterator {
         run_search(line, &mut palins, &mut output);
-        
     }
     output
 }
