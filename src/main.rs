@@ -1,7 +1,7 @@
 pub mod exact_matches;
 mod fasta_parsing;
 pub mod matrix;
-pub mod myers;
+pub mod wfa;
 pub mod output;
 pub mod smith_waterman;
 mod command_line;

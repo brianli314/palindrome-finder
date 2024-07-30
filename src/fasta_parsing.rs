@@ -2,7 +2,7 @@ use crate::command_line::WfaCommand;
 use crate::command_line::{PalinArgs, AlgorithmType::ExactMatch, AlgorithmType::Wfa};
 use crate::exact_matches::match_exact;
 //use crate::exact_matches::match_exact;
-use crate::myers::wfa_palins;
+use crate::wfa::wfa_palins;
 use crate::output::PalindromeData;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
