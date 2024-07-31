@@ -1,17 +1,26 @@
-use core::panic;
 use std::{
     cmp::{max, min},
     mem,
 };
 
-use crate::{command_line::{PalinArgs, WfaCommand}, fasta_parsing::Fasta, output::PalindromeData};
+use crate::{
+    command_line::{PalinArgs, WfaCommand},
+    fasta_parsing::Fasta,
+    output::PalindromeData,
+};
 
-pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinArgs, cmds: &WfaCommand) {
+use anyhow::{bail, Ok, Result};
 
+pub fn wfa_palins(
+    fasta: Fasta,
+    output: &mut Vec<PalindromeData>,
+    args: &PalinArgs,
+    cmds: &WfaCommand,
+) -> Result<()> {
     //Getting the sequence as bits where A = !T, C = !G
     let mut seq_clone = fasta.sequence.clone();
     let bytes_seq = unsafe { seq_clone.as_bytes_mut() };
-    sequence_to_bytes(bytes_seq);
+    sequence_to_bytes(bytes_seq)?;
 
     let seq = fasta.sequence;
 
@@ -23,7 +32,6 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinAr
     let first_wave = vec![0; args.gap_len + 2];
 
     while index <= len {
-
         let mut edit_dist = 0;
         let mut wf_len = args.gap_len + 1;
         let mut gap = 0;
@@ -34,9 +42,9 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinAr
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= cmds.mismatch_len_ratio {
+        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= cmds.mismatch_len_ratio
+        {
             for i in 0..wf_len {
-
                 //Extend wave along the matches
                 let (mut x, y) = get_xy(wf_len, i, wf[i], args.gap_len);
                 x += index;
@@ -93,24 +101,27 @@ pub fn wfa_palins(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinAr
         }
         index += max(x, 1);
     }
+    Ok(())
 }
 
 //Evaluates score using formula from X-drop paper
 fn calculate_score(x: usize, y: usize, d: u32, cmds: &WfaCommand) -> f32 {
-    (x + y) as f32 * (cmds.match_bonus / 2.0) - (d as f32) * (cmds.match_bonus - cmds.mismatch_penalty)
+    (x + y) as f32 * (cmds.match_bonus / 2.0)
+        - (d as f32) * (cmds.match_bonus - cmds.mismatch_penalty)
 }
 
 //Converts the sequence to bytes, where A = !T, C = !G
-fn sequence_to_bytes(seq: &mut [u8]) {
+fn sequence_to_bytes(seq: &mut [u8]) -> Result<()> {
     for i in seq.iter_mut() {
         *i = match i {
             65 | 97 => 2,    // A, a
             84 | 116 => 253, // T, t
             67 | 99 => 3,    // C, c
             71 | 103 => 252, // G, g
-            _ => panic!("Not a base pair")
+            _ => bail!("Not fasta format"),
         };
     }
+    Ok(())
 }
 
 fn extend_wave(mut x: usize, mut y: usize, index: usize, seq: &[u8]) -> u32 {
@@ -123,7 +134,7 @@ fn extend_wave(mut x: usize, mut y: usize, index: usize, seq: &[u8]) -> u32 {
         let len2 = min(index - y, 8);
         count = count_matching(&seq[x..x + len1], &seq[index - y - len2..index - y]);
         x += count as usize;
-        y += count as usize; 
+        y += count as usize;
         counter += count;
     }
     counter
@@ -155,10 +166,9 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
             wf_next[i + 1] = max(wf[i - 1], wf[i] + 1);
         }
 
-        if wf_len == 1{
-            wf_next[i+2] = wf[i];
+        if wf_len == 1 {
+            wf_next[i + 2] = wf[i];
         }
-        
     }
     mem::swap(wf, wf_next);
 }

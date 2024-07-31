@@ -1,9 +1,9 @@
 use crate::command_line::WfaCommand;
-use crate::command_line::{PalinArgs, AlgorithmType::ExactMatch, AlgorithmType::Wfa};
+use crate::command_line::{AlgorithmType::ExactMatch, AlgorithmType::Wfa, PalinArgs};
 use crate::exact_matches::match_exact;
-//use crate::exact_matches::match_exact;
-use crate::wfa::wfa_palins;
 use crate::output::PalindromeData;
+use crate::wfa::wfa_palins;
+use anyhow::{anyhow, ensure, Ok, Result};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::mem;
@@ -28,25 +28,36 @@ impl Fasta {
 pub struct FastaIterator {
     lines_reader: Lines<BufReader<File>>,
     curr_name: String,
-    filter: String
+    filter: String,
 }
 
 impl Iterator for FastaIterator {
-    type Item = Fasta;
+    type Item = Result<Fasta>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut seq = String::new();
-        let mut right_chromosome = false;
+
+        let mut filter_off = false;
+        let mut is_first_line = true;
+        
         for line in self.lines_reader.by_ref() {
             let line = line.expect("Failed to read from fasta!");
-            
+
+            if is_first_line {
+                is_first_line = false;
+                
+                if !line.starts_with('>'){
+                    return Some(Err(anyhow!("Not a fasta sequence")));
+                }
+            } 
+
             if line.contains(&self.filter) {
-                right_chromosome = true;
+                filter_off = true;
             } else if line.starts_with('>') && !line.contains(&self.filter) {
-                right_chromosome = false;
+                filter_off = false;
             }
 
-            if right_chromosome {
+            if filter_off {
                 if line.starts_with('>') {
                     let mut name = line.strip_prefix('>').unwrap().to_owned();
                     if seq.is_empty() {
@@ -54,10 +65,15 @@ impl Iterator for FastaIterator {
                         continue;
                     }
                     mem::swap(&mut name, &mut self.curr_name);
-                    return Some(Fasta {
+
+                    if name.is_empty(){
+                        return Some(Err(anyhow!("Not a fasta sequence")));
+                    }
+                    
+                    return Some(Ok(Fasta {
                         name,
                         sequence: seq,
-                    });
+                    }));
                 } else {
                     seq += &line;
                 }
@@ -66,10 +82,10 @@ impl Iterator for FastaIterator {
         if seq.is_empty() {
             None
         } else {
-            Some(Fasta {
+            Some(Ok(Fasta {
                 name: mem::take(&mut self.curr_name),
                 sequence: seq,
-            })
+            }))
         }
     }
 }
@@ -79,42 +95,61 @@ impl FastaIterator {
         Self {
             lines_reader: bufreader.lines(),
             curr_name: String::new(),
-            filter
+            filter,
         }
     }
 }
 
-pub fn parse_fasta(args: &PalinArgs) -> Vec<PalindromeData> {
-    let file = match File::open(&args.input_file) {
-        Ok(file) => file,
-        Err(error) => panic!("Problem opening the file: {error:?}"),
-    };
+pub fn parse_fasta(args: &PalinArgs) -> Result<Vec<PalindromeData>> {
+    let file = File::open(&args.input_file)?;
 
     let reader = BufReader::new(file);
     let mut output = Vec::new();
     let iterator = FastaIterator::new(reader, args.filter.clone());
 
-    match &args.command{
-        Wfa(cmds) => run_wfa(args, cmds, iterator, &mut output),
-        ExactMatch => run_exact_match(args, iterator, &mut output),
+    match &args.command {
+        Wfa(cmds) => run_wfa(args, cmds, iterator, &mut output)?,
+        ExactMatch => run_exact_match(args, iterator, &mut output)?,
     }
-    output
+
+    Ok(output)
 }
 
-fn run_wfa(args: &PalinArgs, cmds: &WfaCommand, iterator: FastaIterator, output: &mut Vec<PalindromeData>){
-    let mut palins= Vec::new();
-    for line in iterator{
-        wfa_palins(line, output, args, cmds);
-        output.append(&mut palins);
-        palins.clear();
-    }
-}
+fn run_wfa(
+    args: &PalinArgs,
+    cmds: &WfaCommand,
+    iterator: FastaIterator,
+    output: &mut Vec<PalindromeData>,
+) -> Result<()> {
+    ensure!(cmds.match_bonus > 0.0, "Match bonus not positive");
+    ensure!(cmds.mismatch_penalty < 0.0, "Mismatch bonus not negative");
+    ensure!(
+        0.0 < cmds.mismatch_len_ratio && cmds.mismatch_len_ratio < 1.0,
+        "Mismatch-length ratio not between 0 and 1"
+    );
+    ensure!(cmds.x_drop > 0.0, "X-drop not positive");
 
-fn run_exact_match(args: &PalinArgs, iterator: FastaIterator, output: &mut Vec<PalindromeData>){
     let mut palins = Vec::new();
     for line in iterator {
-        match_exact(line, output, args);
+        wfa_palins(line?, output, args, cmds)?;
         output.append(&mut palins);
         palins.clear();
     }
+
+    Ok(())
+}
+
+fn run_exact_match(
+    args: &PalinArgs,
+    iterator: FastaIterator,
+    output: &mut Vec<PalindromeData>,
+) -> Result<()> {
+    let mut palins = Vec::new();
+    for line in iterator {
+        match_exact(line?, output, args)?;
+        output.append(&mut palins);
+        palins.clear();
+    }
+
+    Ok(())
 }
