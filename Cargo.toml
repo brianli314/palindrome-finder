@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.5.11", features = ["cargo", "derive"] }
+clap = { version = "4.5.13", features = ["cargo", "derive"] }
 anyhow = "1.0"
 flate2 = "1.0.30"

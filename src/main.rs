@@ -1,25 +1,29 @@
+pub mod command_line;
 pub mod exact_matches;
-mod fasta_parsing;
-pub mod matrix;
-pub mod wfa;
+pub mod fasta_parsing;
 pub mod output;
-mod command_line;
-use std::time::Instant;
+pub mod run_algorithm;
+pub mod wfa;
 
-use anyhow::Ok;
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use clap::Parser;
-use command_line::PalinArgs;
+use command_line::{AlgorithmType::ExactMatch, AlgorithmType::Wfa, PalinArgs};
 use fasta_parsing::parse_fasta;
 use output::write_file;
+use run_algorithm::{run_exact_match, run_wfa};
+use std::time::Instant;
 
-
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     let now = Instant::now();
 
     let args = PalinArgs::parse();
+    let iterator = parse_fasta(&args)?;
+    let mut palins = Vec::new();
 
-    let palins  = parse_fasta(&args)?;
+    match &args.command {
+        Wfa(cmds) => run_wfa(&args, cmds, iterator, &mut palins)?,
+        ExactMatch => run_exact_match(&args, iterator, &mut palins)?,
+    }
 
     write_file(palins, &args.output_file)?;
 

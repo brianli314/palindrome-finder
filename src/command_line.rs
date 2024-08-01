@@ -1,8 +1,4 @@
-use clap::command;
-use clap::ArgGroup;
-use clap::Args;
-use clap::Parser;
-use clap::Subcommand;
+use clap::{command, ArgGroup, Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -22,23 +18,23 @@ pub struct PalinArgs {
     ///Input file path
     pub input_file: String,
 
-    /// Indicates the input file should be read in FASTA format
+    /// Indicates the input file should be read in Fasta format
     #[arg(long)]
     pub fa: bool,
 
-    /// Indicates the input file should be read in compressed FASTA (gz) format
+    /// Indicates the input file should be read in compressed Fasta gzip format
     #[arg(long)]
     pub fgz: bool,
 
     #[arg(short, long = "output", default_value = "output.tsv")]
-    ///Output file path. File does not need to exist. Defaults to a new tsv file
+    ///Output file path. File does not need to exist.
     pub output_file: String,
 
-    #[arg(short, long, default_value = "")]
+    #[arg(short, long,  default_value = "")]
     ///Filters the Fasta file, such as one specific chromosome
     pub filter: String,
 
-    ///Decide which algorithm should be used, defaults to WFA
+    ///Decide which algorithm should be used
     #[clap(subcommand)]
     pub command: AlgorithmType,
 }
@@ -57,7 +53,7 @@ pub struct WfaArgs {
     #[arg(short = 'b', long = "match", default_value_t = 1.0)]
     pub match_bonus: f32,
 
-    ///Penalty for mismatches in scoring, must be positive as penalty is subtracted.
+    ///Penalty for mismatches in scoring, must be positive (since value is subtracted)
     #[arg(short = 'p', long = "mismatch", default_value_t = 1.5)]
     pub mismatch_penalty: f32,
 
