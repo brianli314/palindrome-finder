@@ -53,13 +53,6 @@ fn count_palindrome(start: u32, end: u32, seq: &str) -> Result<u32> {
     Ok(count)
 }
 
-pub fn seq_complement(seq: &str) -> String {
-    let mut output = String::new();
-    for i in 0..seq.len() {
-        output += get_complement(&seq[i..=i]).unwrap();
-    }
-    output
-}
 pub fn get_complement(bp: &str) -> Result<&str> {
     let bpu = bp.to_uppercase();
 
@@ -68,7 +61,7 @@ pub fn get_complement(bp: &str) -> Result<&str> {
         "T" => "A",
         "C" => "G",
         "G" => "C",
-        _ => bail!("Not fasta format"),
+        _ => bail!("Invalid fasta format"),
     };
     Ok(value)
 }

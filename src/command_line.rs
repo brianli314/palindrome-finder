@@ -6,6 +6,9 @@ use clap::Subcommand;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
+#[command(group = ArgGroup::new("file_type")
+    .required(true)
+    .args(&["fa", "fgz"]))]
 pub struct PalinArgs {
     #[arg(short = 'l', long = "len", default_value_t = 10)]
     ///Minimum palindrome length
@@ -15,12 +18,20 @@ pub struct PalinArgs {
     ///Maximum gap length in a palindrome
     pub gap_len: usize,
 
-    #[arg(short, long  = "input", required = true)]
+    #[arg(short, long = "input", required = true)]
     ///Input file path
     pub input_file: String,
 
+    /// Indicates the input file should be read in FASTA format
+    #[arg(long)]
+    pub fa: bool,
+
+    /// Indicates the input file should be read in compressed FASTA (gz) format
+    #[arg(long)]
+    pub fgz: bool,
+
     #[arg(short, long = "output", default_value = "output.tsv")]
-    ///Output file path, defaults to a new file
+    ///Output file path. File does not need to exist. Defaults to a new tsv file
     pub output_file: String,
 
     #[arg(short, long, default_value = "")]
@@ -34,20 +45,20 @@ pub struct PalinArgs {
 
 #[derive(Debug, Subcommand)]
 pub enum AlgorithmType {
-    ///Use WFA algorithm, allows mismatches and gaps. Input in additional parameters
-    Wfa(WfaCommand),
+    ///Use WFA algorithm, allows mismatches and gaps. Add in additional parameters
+    Wfa(WfaArgs),
     ///Use exact match algorithm, only allows perfect palindromes. No additional parameters
     ExactMatch,
 }
 
 #[derive(Debug, Args)]
-pub struct WfaCommand {
+pub struct WfaArgs {
     ///Bonus for matches in scoring, must be positive
     #[arg(short = 'b', long = "match", default_value_t = 1.0)]
     pub match_bonus: f32,
 
-    ///Penalty for mismatches in scoring, must be negative
-    #[arg(short = 'p', long = "mismatch", default_value_t = -1.5)]
+    ///Penalty for mismatches in scoring, must be positive as penalty is subtracted.
+    #[arg(short = 'p', long = "mismatch", default_value_t = 1.5)]
     pub mismatch_penalty: f32,
 
     ///Maximum score drop after enough mismatches, depends on match/mismatch values, must be positive

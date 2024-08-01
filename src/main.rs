@@ -3,7 +3,6 @@ mod fasta_parsing;
 pub mod matrix;
 pub mod wfa;
 pub mod output;
-pub mod smith_waterman;
 mod command_line;
 use std::time::Instant;
 

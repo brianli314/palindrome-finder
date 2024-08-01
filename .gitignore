@@ -2,3 +2,6 @@
 *.fa
 *.fa.*
 *.tsv
+*.fasta
+*.fasta.*
+*.txt
