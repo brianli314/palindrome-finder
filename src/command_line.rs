@@ -54,7 +54,7 @@ pub struct WfaArgs {
     pub match_bonus: f32,
 
     ///Penalty for mismatches in scoring, must be positive (since value is subtracted)
-    #[arg(short = 'p', long = "mismatch", default_value_t = 1.5)]
+    #[arg(short = 'p', long = "mismatch", default_value_t = 1.0)]
     pub mismatch_penalty: f32,
 
     ///Maximum score drop after enough mismatches, depends on match/mismatch values, must be positive
