@@ -94,7 +94,7 @@ pub fn wfa_palins(
         let mut increment = 1;
         //x,y are coordinates of the longest wavepoint
         let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
-        if x + y >= args.min_len {
+        if x + y >= args.len {
             let palin = PalindromeData::new(
                 (index - y) as u32,
                 (index + x - 1) as u32,

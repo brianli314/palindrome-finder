@@ -11,7 +11,7 @@ pub fn match_exact(fasta: Fasta, output: &mut Vec<PalindromeData>, args: &PalinA
         let mut j = 1;
         while i >= j && j <= args.gap_len as u32 {
             let length = count_palindrome(i, i + j, seq)?;
-            if length >= args.min_len as u32 {
+            if length >= args.len as u32 {
                 let palin = PalindromeData::new(
                     i + 1 - length,
                     i + length + j - 1,

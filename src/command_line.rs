@@ -6,9 +6,9 @@ use clap::{command, ArgGroup, Args, Parser, Subcommand};
     .required(true)
     .args(&["fa", "fgz"]))]
 pub struct PalinArgs {
-    #[arg(short = 'l', long = "len", default_value_t = 10)]
+    #[arg(short = 'l', long, default_value_t = 10)]
     ///Minimum palindrome length
-    pub min_len: usize,
+    pub len: usize,
 
     #[arg(short, long = "gap", default_value_t = 3)]
     ///Maximum gap length in a palindrome
