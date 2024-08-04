@@ -1,6 +1,5 @@
-*.fa
-*.fa.*
+/target
+.venv
+*.fa*
+*.fasta*
 *.tsv
-*.fasta
-*.fasta.*
-*.txt
