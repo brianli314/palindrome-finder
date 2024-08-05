@@ -57,11 +57,14 @@ pub struct WfaArgs {
     #[arg(short = 'p', long = "mismatch", default_value_t = 1.0)]
     pub mismatch_penalty: f32,
 
-    ///Maximum score drop after enough mismatches, depends on match/mismatch values, must be positive
-    #[arg(short, long, default_value_t = 2.0)]
+    ///Prune sequences if there are a lot of mismatches in a row.
+    ///Small values lead to more exact matches
+    /// Should depend on match/mismatch scores
+    /// Must be positive
+    #[arg(short, long, default_value_t = 4.0)]
     pub x_drop: f32,
 
-    ///Maximum ratio of mismatches to length of palindrome, must be between 0 and 1
+    ///Max percentage of mismatches allowed in a palindrome, must be between 0 and 1
     #[arg(short = 'r', long, default_value_t = 0.3)]
-    pub mismatch_len_ratio: f32,
+    pub mismatch_ratio_threshold: f32,
 }

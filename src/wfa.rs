@@ -11,6 +11,8 @@ use crate::{
 
 use anyhow::{bail, ensure, Ok, Result};
 
+const SIZE: usize = 1000;
+
 pub fn wfa_palins(
     fasta: Fasta,
     output: &mut Vec<PalindromeData>,
@@ -23,13 +25,12 @@ pub fn wfa_palins(
     sequence_to_bytes(bytes_seq)?;
 
     let seq = fasta.sequence;
-    
 
     let len = seq.len();
     let mut index = 0;
 
-    let mut wf = vec![0; len];
-    let mut wf_next = vec![0; len];
+    let mut wf = vec![0; SIZE];
+    let mut wf_next = vec![0; SIZE];
 
     let first_wave = vec![0; args.gap_len + 2];
 
@@ -44,7 +45,8 @@ pub fn wfa_palins(
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001) <= wfa_args.mismatch_len_ratio
+        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
+            <= wfa_args.mismatch_ratio_threshold
         {
             for i in 0..wf_len {
                 //Extend wave along the matches
@@ -56,7 +58,6 @@ pub fn wfa_palins(
                 x += counter as usize;
                 y += counter as usize;
 
-                
                 if wf[i] > wf[max_index] {
                     max_index = i;
                 }
@@ -106,7 +107,6 @@ pub fn wfa_palins(
             );
             output.push(palin);
             increment = x;
-            
         }
         index += increment
     }
@@ -151,8 +151,14 @@ fn extend_wave(mut x: usize, mut y: usize, index: usize, seq: &[u8]) -> Result<u
 
 //Counts the matching sequences with bit manipulation
 fn count_matching(seq1: &[u8], seq2: &[u8]) -> Result<u32> {
-    ensure!(seq1.len() <= 8, "Sequence length too long when processing bits");
-    ensure!(seq2.len() <= 8, "Sequence length too long when processing bits");
+    ensure!(
+        seq1.len() <= 8,
+        "Sequence length too long when processing bits"
+    );
+    ensure!(
+        seq2.len() <= 8,
+        "Sequence length too long when processing bits"
+    );
     let mut buf1 = [0; 8];
     let mut buf2 = [0; 8];
     buf1[..seq1.len()].copy_from_slice(seq1);
@@ -169,8 +175,16 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
             wf_next[i] = wf[i];
             wf_next[i + 1] = max(wf[i] + 1, wf[i + 1]);
         } else if i != wf_len - 1 {
+            if i + 1 >= wf_next.len() {
+                wf_next.extend([0; SIZE]);
+                wf.extend([0; SIZE])
+            }
             wf_next[i + 1] = max(wf[i] + 1, max(wf[i - 1], wf[i + 1]));
         } else {
+            if i + 1 >= wf_next.len() || i + 2 >= wf_next.len() {
+                wf_next.extend([0; SIZE]);
+                wf.extend([0; SIZE])
+            }
             wf_next[i + 2] = wf[i];
             wf_next[i + 1] = max(wf[i - 1], wf[i] + 1);
         }

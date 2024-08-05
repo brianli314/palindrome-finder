@@ -3,6 +3,8 @@ use std::{fs::File, io::{BufWriter, Write}};
 
 use anyhow::Result;
 
+pub const BUFF_SIZE: usize = 1<<20;
+
 #[derive(Debug)]
 pub struct PalindromeData {
     start: u32,
@@ -46,7 +48,7 @@ impl fmt::Display for PalindromeData {
 
 pub fn write_file(palins: Vec<PalindromeData>, file_name: &str) -> Result<()> {
     let output = File::create(file_name)?;
-    let mut writer = BufWriter::new(output);
+    let mut writer = BufWriter::with_capacity(BUFF_SIZE, output);
 
     let _ = writeln!(
         writer,

@@ -1,4 +1,5 @@
 use crate::command_line::PalinArgs;
+use crate::output::BUFF_SIZE;
 use anyhow::{anyhow, bail, Ok, Result};
 use flate2::read::GzDecoder;
 use std::{
@@ -101,9 +102,12 @@ pub fn get_reader(args: &PalinArgs) -> Result<BufReader<Box<dyn Read>>> {
     let file = File::open(&args.input_file)?;
 
     if args.fgz {
-        Ok(BufReader::new(Box::new(GzDecoder::new(file))))
+        Ok(BufReader::with_capacity(
+            BUFF_SIZE,
+            Box::new(GzDecoder::new(file)),
+        ))
     } else if args.fa {
-        return Ok(BufReader::new(Box::new(file)));
+        return Ok(BufReader::with_capacity(BUFF_SIZE, Box::new(file)));
     } else {
         bail!("Invalid file format input")
     }
