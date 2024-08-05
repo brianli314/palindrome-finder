@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use clap::{command, ArgGroup, Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -67,4 +69,29 @@ pub struct WfaArgs {
     ///Max percentage of mismatches allowed in a palindrome, must be between 0 and 1
     #[arg(short = 'r', long, default_value_t = 0.3)]
     pub mismatch_ratio_threshold: f32,
+}
+
+impl Display for PalinArgs{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Len: {}, Gap: {}, Filter: {}\n{}",
+            self.len, self.gap_len, self.filter, self.command
+        )
+    }
+}
+
+impl Display for AlgorithmType{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self{
+            AlgorithmType::Wfa(cmds) => 
+                write!(
+                    f,
+                    "Match bonus: {}, Mismatch penalty: {}, X-drop: {}, Mismatch-length threshold: {}",
+                    cmds.match_bonus, cmds.mismatch_penalty, cmds.x_drop, cmds.mismatch_ratio_threshold
+            ),
+            AlgorithmType::ExactMatch => Result::Ok(()),
+        }
+        
+    }
 }

@@ -45,7 +45,7 @@ pub fn wfa_palins(
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
+        'o: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
             <= wfa_args.mismatch_ratio_threshold
         {
             for i in 0..wf_len {
@@ -63,10 +63,10 @@ pub fn wfa_palins(
                 }
 
                 if x == len || y == index {
-                    break 'outer;
+                    break 'o;
                 }
             }
-
+            
             let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
             let curr_score = calculate_score(x, y, edit_dist, wfa_args);
             max_score = f32::max(max_score, curr_score);

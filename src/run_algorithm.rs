@@ -50,7 +50,10 @@ pub fn run_exact_match<T: Read>(
 ) -> Result<()> {
     let mut palins = Vec::new();
     for line in iterator {
+        let start = Instant::now();
         match_exact(line?, output, args)?;
+        let duration = start.elapsed();
+        ALGO_TIMER.fetch_add(duration.as_millis() as u64, Ordering::Relaxed);
         output.append(&mut palins);
         palins.clear();
     }

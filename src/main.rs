@@ -31,5 +31,6 @@ fn main() -> Result<()> {
     let elapsed = global_timer.elapsed();
     println!("Total elapsed time: {}", elapsed.as_millis());
     println!("Time spent on algorithm: {}", ALGO_TIMER.load(Ordering::Relaxed));
+    println!("Settings:\n{}", args);
     Ok(())
 }
