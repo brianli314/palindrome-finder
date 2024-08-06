@@ -45,9 +45,10 @@ pub fn wfa_palins(
         //Reset first wave to 0
         wf[..=wf_len].copy_from_slice(&first_wave);
 
-        'o: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
+        'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
             <= wfa_args.mismatch_ratio_threshold
         {
+            let mut max_wf_score = 0.0;
             for i in 0..wf_len {
                 //Extend wave along the matches
                 let (mut x, mut y) = get_xy(wf_len, i, wf[i], args.gap_len);
@@ -57,22 +58,24 @@ pub fn wfa_palins(
                 wf[i] += counter as usize;
                 x += counter as usize;
                 y += counter as usize;
+                
+                let score = calculate_score(x, y, edit_dist, wfa_args);
+                
+                max_wf_score = f32::max(max_wf_score, score);
 
                 if wf[i] > wf[max_index] {
                     max_index = i;
                 }
 
                 if x == len || y == index {
-                    break 'o;
+                    break 'outer;
                 }
             }
             
-            let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
-            let curr_score = calculate_score(x, y, edit_dist, wfa_args);
-            max_score = f32::max(max_score, curr_score);
+            max_score = f32::max(max_score, max_wf_score);
 
             //X-drop
-            if curr_score < max_score - wfa_args.x_drop {
+            if max_wf_score < max_score - wfa_args.x_drop {
                 break;
             }
 
