@@ -25,5 +25,5 @@ def get_ratio(bin_size):
     plt.ylabel("Num base pairs")
     plt.show()
 
-get_ratio(10)
+get_ratio(100000)
     

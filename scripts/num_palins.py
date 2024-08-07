@@ -8,4 +8,7 @@ df = pandas.read_csv(os.path.join("..", path_name), sep='\t')
 def num_palins():
     print(len(df["Length"]))
 
-num_palins()
+def num_bps():
+    print(sum(df["Length"]))
+
+num_bps()
