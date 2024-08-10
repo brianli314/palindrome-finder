@@ -10,7 +10,6 @@ df = pandas.read_csv(os.path.join(large_path, path_name), sep='\t')
 def get_num_palins(length):
     column = df["Length"]
     counter = 0
-    maximum = 0
     x_axis = []
     y_axis = []
     for i in range(int(length), 51):

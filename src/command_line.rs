@@ -63,11 +63,11 @@ pub struct WfaArgs {
     ///Small values lead to more exact matches
     /// Should depend on match/mismatch scores
     /// Must be positive
-    #[arg(short, long, default_value_t = 4.0)]
+    #[arg(short, long, default_value_t = 2.0)]
     pub x_drop: f32,
 
     ///Max percentage of mismatches allowed in a palindrome, must be between 0 and 1
-    #[arg(short = 'r', long, default_value_t = 0.3)]
+    #[arg(short = 'r', long, default_value_t = 0.01)]
     pub mismatch_ratio_threshold: f32,
 }
 

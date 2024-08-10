@@ -1,5 +1,6 @@
 /target
 .venv
+__pycache__
 *.fa*
 *.fasta*
 *.tsv
