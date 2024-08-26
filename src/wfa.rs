@@ -1,6 +1,6 @@
 use std::{
     cmp::{max, min},
-    mem, time::Instant,
+    mem,
 };
 
 use crate::{
@@ -84,7 +84,7 @@ pub fn wfa_palins(
             max_score = f32::max(max_score, max_wf_score);
 
             //X-drop
-            if max_wf_score < max_score - wfa_args.x_drop {
+            if max_wf_score < max_score - f32::max(wfa_args.x_drop, (wf[max_index] as f32)*0.1) {
                 break;
             }
 
@@ -106,9 +106,9 @@ pub fn wfa_palins(
         //x,y are coordinates of the longest wavepoint
         let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
         let palin = &seq[index - y..index + x];
-        //let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
         let gap = y - wf[max_index];
-        
+
+        //let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
         if x + y >= args.len + gap
            // && 0.5 > lowercase_count as f32 / palin.len() as f32 
         {
@@ -125,7 +125,7 @@ pub fn wfa_palins(
             output.push(palin);
             increment = x;
         }
-        index += 1
+        index += increment
     }
     Ok(())
 }

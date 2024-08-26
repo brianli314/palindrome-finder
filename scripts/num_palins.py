@@ -21,7 +21,7 @@ def num_bps(start_pt, end_pt):
     counter = 0 
 
         
-    for i in range(max(0,filtered_start.idxmin() - 1), len(length)):
+    for i in range(max(0, filtered_start.idxmin() - 1), len(length)):
         if start[i] >= end_pt:
             break
         
@@ -46,8 +46,6 @@ def num_bps_overlap():
     print(counter)
 
 if __name__ == "__main__":
-    #num_palins()
-    num_bps_overlap()
-    #print(num_bps(0, 500000000000))
+    print(num_bps(0, 500000000000))
 
     

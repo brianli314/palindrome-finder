@@ -9,19 +9,19 @@ df = pandas.read_csv(os.path.join("..", path_name), sep='\t')
 
 def get_ratio(bin_size):
     end = df["End"]
-    length = df["Length"]
     end_length = len(end)
-    bin_indices = []
-    bin_lengths = []
+    bins = {}
+
     for i in range(end[end_length - 1] // bin_size + 1):
-        bin_indices.append(i)
-        bin_lengths.append(num_palins.num_bps(i*bin_size, (i+1)*bin_size))
+        bins[i] = num_palins.num_bps(i*bin_size, (i+1)*bin_size)
 
-    return [bin_indices, bin_lengths]
-    plt.plot(bin_indices, bin_lengths)
-    plt.xlabel(f"Location on sequence (every {bin_size})")
-    plt.ylabel("Num base pairs")
+    plt.plot(bins.keys(), bins.values())
+    plt.title("Location of sequence to number of base pairs")
+    plt.xlabel(f"Location on sequence (every {bin_size} bp)")
+    plt.ylabel("Num base pairs involved in a palindrome ")
     plt.show()
+    return bins
 
+get_ratio(100000)
 
     
