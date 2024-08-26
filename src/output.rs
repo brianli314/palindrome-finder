@@ -1,26 +1,32 @@
 use core::fmt;
-use std::{fs::File, io::{BufWriter, Write}};
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+};
 
 use anyhow::Result;
 
-pub const BUFF_SIZE: usize = 1<<20;
+pub const BUFF_SIZE: usize = 1 << 20;
 
 #[derive(Debug)]
 pub struct PalindromeData {
     start: u32,
     end: u32,
-    length: u32,
+    arm_length: u32,
     gap: u32,
+    overall_length: u32,
     mismatches: u32,
     fasta: String,
     sequence: String,
 }
 impl PalindromeData {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         start: u32,
         end: u32,
-        length: u32,
+        arm_length: u32,
         gap: u32,
+        overall_length: u32,
         mismatches: u32,
         fasta: String,
         sequence: String,
@@ -28,8 +34,9 @@ impl PalindromeData {
         Self {
             start,
             end,
-            length,
+            arm_length,
             gap,
+            overall_length,
             mismatches,
             fasta,
             sequence,
@@ -40,8 +47,15 @@ impl fmt::Display for PalindromeData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}",
-            self.start, self.end, self.length, self.gap, self.mismatches, self.fasta, self.sequence,
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+            self.start,
+            self.end,
+            self.arm_length,
+            self.gap,
+            self.overall_length,
+            self.mismatches,
+            self.fasta.split_once(" ").unwrap().0,
+            self.sequence,
         )
     }
 }
@@ -52,7 +66,7 @@ pub fn write_file(palins: Vec<PalindromeData>, file_name: &str) -> Result<()> {
 
     let _ = writeln!(
         writer,
-        "Start\tEnd\tLength\tGap Length\tMismatches\tSeq name\tSequence\n"
+        "Start\tEnd\tArm-Length(Approx)\tGap(Approx)\tLength\tMismatches\tSeq-name\tSequence\n"
     );
     for palin in palins {
         let _ = writeln!(writer, "{}", palin);

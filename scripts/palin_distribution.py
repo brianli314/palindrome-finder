@@ -17,11 +17,11 @@ def get_ratio(bin_size):
         bin_indices.append(i)
         bin_lengths.append(num_palins.num_bps(i*bin_size, (i+1)*bin_size))
 
-    
+    return [bin_indices, bin_lengths]
     plt.plot(bin_indices, bin_lengths)
     plt.xlabel(f"Location on sequence (every {bin_size})")
     plt.ylabel("Num base pairs")
     plt.show()
 
-get_ratio(100000)
+
     

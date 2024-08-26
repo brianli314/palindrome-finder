@@ -7,10 +7,10 @@ pub mod wfa;
 
 use anyhow::{Ok, Result};
 use clap::Parser;
-use command_line::{AlgorithmType::ExactMatch, AlgorithmType::Wfa, PalinArgs};
+use command_line::{AlgorithmType::{FixedMismatch, Wfa}, PalinArgs};
 use fasta_parsing::parse_fasta;
 use output::write_file;
-use run_algorithm::{run_exact_match, run_wfa, ALGO_TIMER};
+use run_algorithm::{run_fixed_match, run_wfa, ALGO_TIMER};
 use std::{sync::atomic::Ordering, time::Instant};
 
 fn main() -> Result<()> {
@@ -23,7 +23,7 @@ fn main() -> Result<()> {
 
     match &args.command {
         Wfa(cmds) => run_wfa(&args, cmds, iterator, &mut palins)?,
-        ExactMatch => run_exact_match(&args, iterator, &mut palins)?,
+        FixedMismatch(cmds ) => run_fixed_match(&args, cmds, iterator, &mut palins)?,
     }
 
     write_file(palins, &args.output_file)?;

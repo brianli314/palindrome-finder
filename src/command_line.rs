@@ -43,10 +43,16 @@ pub struct PalinArgs {
 
 #[derive(Debug, Subcommand)]
 pub enum AlgorithmType {
-    ///Use WFA algorithm, allows mismatches and gaps. Add in additional parameters
+    ///Use WFA algorithm, allows mismatches and gaps.
     Wfa(WfaArgs),
-    ///Use exact match algorithm, only allows perfect palindromes. No additional parameters
-    ExactMatch,
+    ///Use fixed-mismatches algorithm, only allows x mismatches rather than a ratio depending on length
+    FixedMismatch(FixedArgs),
+}
+
+#[derive(Debug, Args)]
+pub struct FixedArgs{
+    #[arg(short = 'm', long = "mismatches", default_value_t = 4)]
+    pub mismatches: u32,
 }
 
 #[derive(Debug, Args)]
@@ -90,7 +96,12 @@ impl Display for AlgorithmType{
                     "Match bonus: {}\nMismatch penalty: {}\nX-drop: {}\nMismatch-length threshold: {}",
                     cmds.match_bonus, cmds.mismatch_penalty, cmds.x_drop, cmds.mismatch_ratio_threshold
             ),
-            AlgorithmType::ExactMatch => Result::Ok(()),
+            AlgorithmType::FixedMismatch(cmds) => 
+                write!(
+                    f,
+                    "Mismatches allowed: {}",
+                    cmds.mismatches
+                ),
         }
         
     }

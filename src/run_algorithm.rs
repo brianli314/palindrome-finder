@@ -3,8 +3,8 @@ use std::{io::Read, sync::atomic::{AtomicU64, Ordering}, time::Instant};
 use anyhow::{ensure, Result};
 
 use crate::{
-    command_line::{PalinArgs, WfaArgs},
-    exact_matches::match_exact,
+    command_line::{FixedArgs, PalinArgs, WfaArgs},
+    exact_matches::fixed_match,
     fasta_parsing::FastaIterator,
     output::PalindromeData,
     wfa::wfa_palins,
@@ -43,15 +43,16 @@ pub fn run_wfa<T: Read>(
     Ok(())
 }
 
-pub fn run_exact_match<T: Read>(
+pub fn run_fixed_match<T: Read>(
     args: &PalinArgs,
+    cmds: &FixedArgs,
     iterator: FastaIterator<T>,
     output: &mut Vec<PalindromeData>,
 ) -> Result<()> {
     let mut palins = Vec::new();
     for line in iterator {
         let start = Instant::now();
-        match_exact(line?, output, args)?;
+        fixed_match(line?, output, args, cmds)?;
         let duration = start.elapsed();
         ALGO_TIMER.fetch_add(duration.as_millis() as u64, Ordering::Relaxed);
         output.append(&mut palins);

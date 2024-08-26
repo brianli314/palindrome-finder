@@ -1,6 +1,6 @@
 use std::{
     cmp::{max, min},
-    mem,
+    mem, time::Instant,
 };
 
 use crate::{
@@ -29,15 +29,14 @@ pub fn wfa_palins(
     let len = seq.len();
     let mut index = 0;
 
-    let mut wf = vec![0; SIZE];
-    let mut wf_next = vec![0; SIZE];
+    let mut wf = vec![0; max(SIZE, args.gap_len + 2)];
+    let mut wf_next = vec![0; max(SIZE, args.gap_len + 2)];
 
     let first_wave = vec![0; args.gap_len + 2];
 
     while index <= len {
         let mut edit_dist = 0;
         let mut wf_len = args.gap_len + 1;
-        let mut gap = 0;
 
         let mut max_index = 0;
         let mut max_score = 0.0;
@@ -58,9 +57,9 @@ pub fn wfa_palins(
                 wf[i] += counter as usize;
                 x += counter as usize;
                 y += counter as usize;
-                
+
                 let score = calculate_score(x, y, edit_dist, wfa_args);
-                
+
                 max_wf_score = f32::max(max_wf_score, score);
 
                 if wf[i] > wf[max_index] {
@@ -71,7 +70,17 @@ pub fn wfa_palins(
                     break 'outer;
                 }
             }
-            
+
+            /* 
+            let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
+            let palin = &seq[index - y..index + x];
+            let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
+
+            if lowercase_count as f32 / palin.len() as f32 > 0.5{
+                break;
+            }
+            */
+
             max_score = f32::max(max_score, max_wf_score);
 
             //X-drop
@@ -79,10 +88,6 @@ pub fn wfa_palins(
                 break;
             }
 
-            //Getting the gap size, based on initial wavefront formation
-            if wf_len == args.gap_len + 1 {
-                gap = max_index;
-            }
 
             next_wave(&mut wf, &mut wf_next, wf_len);
             max_index += 1;
@@ -95,23 +100,32 @@ pub fn wfa_palins(
             continue;
         }
 
+        
+
         let mut increment = 1;
         //x,y are coordinates of the longest wavepoint
         let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
-        if x + y >= args.len {
+        let palin = &seq[index - y..index + x];
+        //let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
+        let gap = y - wf[max_index];
+        
+        if x + y >= args.len + gap
+           // && 0.5 > lowercase_count as f32 / palin.len() as f32 
+        {
             let palin = PalindromeData::new(
                 (index - y) as u32,
                 (index + x - 1) as u32,
-                (x + y) as u32,
+                x as u32,
                 gap as u32,
+                (x+y) as u32,
                 edit_dist,
                 fasta.name.to_owned(),
-                seq[index - y..index + x].to_owned(),
+                palin.to_owned(),
             );
             output.push(palin);
             increment = x;
         }
-        index += increment
+        index += 1
     }
     Ok(())
 }
@@ -200,7 +214,7 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
 }
 
 fn get_xy(wf_len: usize, index: usize, length: usize, gap_size: usize) -> (usize, usize) {
-    let offset = ((wf_len - (gap_size + 1)) / 2) as i32 - (index as i32);
+    let offset = wf_len as i32 - ((wf_len - (gap_size + 1)) / 2) as i32 - (index as i32) - 1;
     if offset >= 0 {
         (length, length + offset as usize)
     } else {

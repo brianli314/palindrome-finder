@@ -1,18 +1,17 @@
 import os
 import pandas
 import sys
-import matplotlib.pyplot as plt
 large_path = ".."
-script, path_name, length = sys.argv
+script, path_name = sys.argv
 
 df = pandas.read_csv(os.path.join(large_path, path_name), sep='\t')
 
-def get_num_palins(length):
+def get_num_palins():
     column = df["Length"]
     counter = 0
     x_axis = []
     y_axis = []
-    for i in range(int(length), 51):
+    for i in range(10, 51):
         for line in column:
             if line == i:
                 counter += 1
@@ -26,12 +25,8 @@ def get_num_palins(length):
 
     x_axis.append("50+")
 
-    plt.bar(x_axis, y_axis, width=0.4)
-    plt.xticks([0, 5, 10, 15, 20, 25, 30,35, 40])
-    plt.yscale('log')
-    plt.xlabel("Palindrome length")
-    plt.ylabel("Num palindromes")
-    plt.show()
+    return [x_axis, y_axis]
+    
 
-get_num_palins(length)
+#get_num_palins(length)
 
