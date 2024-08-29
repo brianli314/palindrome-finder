@@ -54,7 +54,7 @@ impl fmt::Display for PalindromeData {
             self.gap,
             self.overall_length,
             self.mismatches,
-            self.fasta.split_once(" ").unwrap().0,
+            self.fasta.split_once(' ').unwrap().0,
             self.sequence,
         )
     }

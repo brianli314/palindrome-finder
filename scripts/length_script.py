@@ -9,7 +9,7 @@ script, path_name = sys.argv
 df = pandas.read_csv(os.path.join(large_path, path_name), sep='\t')
 
 def get_num_palins(start, num):
-    column = df["Length"]
+    column = df["Arm-Length(Approx)"]
     counter = 0
     output = {}
 
@@ -32,12 +32,12 @@ def get_num_palins(start, num):
     x_label = list(str(x) for x in x_ticks)
     x_label[-1] = f"{num}+"
     plt.xticks(x_ticks, x_label)
-    plt.title("Length to number of palindromes")
+    plt.title("Arm Length to number of palindromes")
     plt.xlabel("Palindrome length")
     plt.ylabel("Num palindromes (log)")
     plt.show()
     return output
     
 
-get_num_palins(20, 300)
+get_num_palins(10, 50)
 
