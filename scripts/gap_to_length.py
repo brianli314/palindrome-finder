@@ -3,11 +3,19 @@ import pandas
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 
+parser = argparse.ArgumentParser(
+    description="Plots a contour plot of gap and length to frequency. Can be grouped by bin size"
+)
+parser.add_argument('-i', '--input', required=True, help="File input path")
+parser.add_argument('-b', '--bin', type=int, default=1, help="Bin size")
 
+args = parser.parse_args()
+input_name = args.input
+binsize = args.bin
 
-script, path_name = sys.argv
-df = pandas.read_csv(os.path.join("..",path_name), sep='\t')
+df = pandas.read_csv(input_name, sep='\t')
 
 def gap_to_length(bin_size):
     length = df["Arm-Length(Approx)"]
@@ -22,5 +30,7 @@ def gap_to_length(bin_size):
     plt.xlabel(f"Gap length")
     plt.colorbar()
     plt.show()
+    return matrix
 
-gap_to_length(1)
+if __name__ == '__main__':
+    gap_to_length(binsize)

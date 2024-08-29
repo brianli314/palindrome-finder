@@ -1,14 +1,20 @@
 import pandas
 import sys
-import os
+import argparse
+parser = argparse.ArgumentParser(
+    description="Prints the total number of palindromes and the total number of base pairs involved in palindromes"
+)
+parser.add_argument('-i', '--input', required=True, help="File input path")
 
-script, path_name = sys.argv
-df = pandas.read_csv(os.path.join("..", path_name), sep='\t')
+args = parser.parse_args()
+input_name = args.input
+
+df = pandas.read_csv(input_name, sep='\t')
 
 def num_palins():
-    print(len(df["Length"]))
+    return len(df["Length"])
 
-def num_bps(start_pt, end_pt):
+def num_bps(start_pt=0, end_pt=sys.maxsize):
     start = df["Start"]
     end = df["End"]
     length = df["Length"]
@@ -33,19 +39,10 @@ def num_bps(start_pt, end_pt):
             counter += max(effective_end - index, 0)
 
         index = effective_end
-
     return counter
 
-def num_bps_overlap():
-    length = df["Length"]
-    gap = df["Gap(Approx)"]
-    counter = 0
-    for i in range(len(length)):
-        counter += length[i] - gap[i]
-
-    print(counter)
-
 if __name__ == "__main__":
-    print(num_bps(0, 500000000000))
+    print(f"{num_palins()} palindromes found")
+    print(f"{num_bps()} base pairs that are in palindromes")
 
     
