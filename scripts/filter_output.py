@@ -39,7 +39,7 @@ def get_filter_parser():
 
 #Filters out sequences with too many lowercase letters
 def filter_repeats(df, output, ratio):
-    arms = df["Arm-Length(Approx)"]
+    arms = df["Approx Arm-Length"]
     seq = df["Sequence"]
     indices = []
     for i in range(len(arms)):

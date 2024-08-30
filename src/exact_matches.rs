@@ -17,10 +17,13 @@ pub fn fixed_match(
 ) -> Result<()> {
     let seq = fasta.get_sequence();
     let mut i = 0;
-    while i < seq.len() as u32{
+    while i < seq.len() as u32 {
+
         let mut j = 1;
         let mut increment = 1;
+
         while i >= j && j <= (args.gap_len + 1) as u32 {
+            
             let length = count_palindrome(i, i + j, seq, cmds.mismatches)?;
             if length >= args.len as u32 {
                 let palin = PalindromeData::new(
@@ -28,7 +31,7 @@ pub fn fixed_match(
                     i + length + j - 1,
                     length,
                     j - 1,
-                    2*length + j-1,
+                    2 * length + j - 1,
                     cmds.mismatches,
                     fasta.get_name().to_owned(),
                     seq[(i + 1 - length) as usize..(i + length + j) as usize].to_owned(),
@@ -51,8 +54,8 @@ fn count_palindrome(start: u32, end: u32, seq: &str, mismatch: u32) -> Result<u3
     let mut count = 0;
     let mut mismatches = 0;
 
-    while prev >= 0 && next < seq.len(){
-        if !is_complement(&seq[prev as usize..=prev as usize], &seq[next..=next])?{
+    while prev >= 0 && next < seq.len() {
+        if !is_complement(&seq[prev as usize..=prev as usize], &seq[next..=next])? {
             mismatches += 1;
         }
         if mismatches > mismatch {

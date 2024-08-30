@@ -1,5 +1,6 @@
 /target
 .venv
-/data
-/outputs
 __pycache__
+*.fa
+*.fa.*
+*.tsv

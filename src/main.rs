@@ -7,10 +7,10 @@ pub mod wfa;
 
 use anyhow::{Ok, Result};
 use clap::Parser;
-use command_line::{AlgorithmType::{FixedMismatch, Wfa}, PalinArgs};
+use command_line::PalinArgs;
 use fasta_parsing::parse_fasta;
 use output::write_file;
-use run_algorithm::{run_fixed_match, run_wfa, ALGO_TIMER};
+use run_algorithm::{run, ALGO_TIMER};
 use std::{sync::atomic::Ordering, time::Instant};
 
 fn main() -> Result<()> {
@@ -18,13 +18,8 @@ fn main() -> Result<()> {
 
     let args = PalinArgs::parse();
     let iterator = parse_fasta(&args)?;
-    let mut palins = Vec::new();
 
-
-    match &args.command {
-        Wfa(cmds) => run_wfa(&args, cmds, iterator, &mut palins)?,
-        FixedMismatch(cmds ) => run_fixed_match(&args, cmds, iterator, &mut palins)?,
-    }
+    let palins = run(&args, iterator)?;
 
     write_file(palins, &args.output_file)?;
 
@@ -32,5 +27,6 @@ fn main() -> Result<()> {
     println!("Total elapsed time: {}", elapsed.as_millis());
     println!("Time spent on algorithm: {}", ALGO_TIMER.load(Ordering::Relaxed));
     println!("Settings:\n{}", args);
+    
     Ok(())
 }

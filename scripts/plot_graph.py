@@ -37,7 +37,7 @@ def get_graph_parser():
 
 #Plots arm length to frequency
 def plot_length(df):
-    length = df["Arm-Length(Approx)"]
+    length = df["Approx Arm-Length"]
     output = {}
     for line in length:
         if line in output:
@@ -55,7 +55,7 @@ def plot_length(df):
 
 #Plots gap length to frequency
 def plot_gap(df):
-    gap = df["Gap(Approx)"]
+    gap = df["Approx Gap"]
     output = {}
     for line in gap:
         if line in output:
@@ -88,8 +88,8 @@ def plot_distribution(bin_size, df):
 
 #Plots heatmap of arm and gap length to frequency
 def plot_heatmap(df):
-    length = df["Arm-Length(Approx)"]
-    gap = df["Gap(Approx)"]
+    length = df["Approx Arm-Length"]
+    gap = df["Approx Gap"]
 
     matrix = np.zeros((length.max() +1, gap.max() +1))
     for i in range(len(length)):

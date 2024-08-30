@@ -13,13 +13,15 @@ use anyhow::{bail, ensure, Ok, Result};
 
 const SIZE: usize = 1000;
 
+//Use WFA algorithm to find palindromes
 pub fn wfa_palins(
     fasta: Fasta,
     output: &mut Vec<PalindromeData>,
     args: &PalinArgs,
     wfa_args: &WfaArgs,
 ) -> Result<()> {
-    //Getting the sequence as bits where A = !T, C = !G for fast matching
+
+    //Converts the sequence to bytes, where A = !T, C = !G
     let mut seq_clone = fasta.sequence.clone();
     let bytes_seq = unsafe { seq_clone.as_bytes_mut() };
     sequence_to_bytes(bytes_seq)?;
@@ -41,7 +43,7 @@ pub fn wfa_palins(
         let mut max_index = 0;
         let mut max_score = 0.0;
 
-        //Reset first wave to 0
+        //Reset first wave to 0s
         wf[..=wf_len].copy_from_slice(&first_wave);
 
         'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
@@ -49,17 +51,17 @@ pub fn wfa_palins(
         {
             let mut max_wf_score = 0.0;
             for i in 0..wf_len {
+
                 //Extend wave along the matches
                 let (mut x, mut y) = get_xy(wf_len, i, wf[i], args.gap_len);
                 x += index;
-                let counter = extend_wave(x, y, index, bytes_seq)?;
+                let counter = extend_wave(x, y, index, bytes_seq)?; //Using bytes_seq for fast complement checks
 
                 wf[i] += counter as usize;
                 x += counter as usize;
                 y += counter as usize;
 
                 let score = calculate_score(x, y, edit_dist, wfa_args);
-
                 max_wf_score = f32::max(max_wf_score, score);
 
                 if wf[i] > wf[max_index] {
@@ -71,23 +73,12 @@ pub fn wfa_palins(
                 }
             }
 
-            /* 
-            let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
-            let palin = &seq[index - y..index + x];
-            let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
-
-            if lowercase_count as f32 / palin.len() as f32 > 0.5{
-                break;
-            }
-            */
-
             max_score = f32::max(max_score, max_wf_score);
 
-            //X-drop
-            if max_wf_score < max_score - f32::max(wfa_args.x_drop, (wf[max_index] as f32)*0.1) {
+            //X-drop pruning
+            if max_wf_score < max_score - f32::max(wfa_args.x_drop, (wf[max_index] as f32) * 0.1) {
                 break;
             }
-
 
             next_wave(&mut wf, &mut wf_next, wf_len);
             max_index += 1;
@@ -100,24 +91,19 @@ pub fn wfa_palins(
             continue;
         }
 
-        
-
         let mut increment = 1;
-        //x,y are coordinates of the longest wavepoint
+
         let (x, y) = get_xy(wf_len, max_index, wf[max_index], args.gap_len);
         let palin = &seq[index - y..index + x];
         let gap = y - wf[max_index];
 
-        //let lowercase_count = palin.chars().filter(|c| c.is_lowercase()).count();
-        if x + y >= args.len + gap
-           // && 0.5 > lowercase_count as f32 / palin.len() as f32 
-        {
+        if x >= args.len {
             let palin = PalindromeData::new(
                 (index - y) as u32,
                 (index + x - 1) as u32,
                 x as u32,
                 gap as u32,
-                (x+y) as u32,
+                (x + y) as u32,
                 edit_dist,
                 fasta.name.to_owned(),
                 palin.to_owned(),
@@ -130,13 +116,11 @@ pub fn wfa_palins(
     Ok(())
 }
 
-//Evaluates score using formula from X-drop paper
 fn calculate_score(x: usize, y: usize, d: u32, args: &WfaArgs) -> f32 {
     (x + y) as f32 * (args.match_bonus / 2.0)
         - (d as f32) * (args.match_bonus - (-args.mismatch_penalty))
 }
 
-//Converts the sequence to bytes, where A = !T, C = !G
 fn sequence_to_bytes(seq: &mut [u8]) -> Result<()> {
     for i in seq.iter_mut() {
         *i = match i {
@@ -150,6 +134,7 @@ fn sequence_to_bytes(seq: &mut [u8]) -> Result<()> {
     Ok(())
 }
 
+//Extends wave across matches
 fn extend_wave(mut x: usize, mut y: usize, index: usize, seq: &[u8]) -> Result<u32> {
     let len = seq.len();
     let mut count = 8;
@@ -186,6 +171,7 @@ fn count_matching(seq1: &[u8], seq2: &[u8]) -> Result<u32> {
     Ok(diff.trailing_zeros() / 8)
 }
 
+//Branches out to next wave
 fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
     for i in 0..wf_len {
         if i == 0 {
@@ -213,37 +199,12 @@ fn next_wave(wf: &mut Vec<usize>, wf_next: &mut Vec<usize>, wf_len: usize) {
     mem::swap(wf, wf_next);
 }
 
+//Computes XY coordinates of a wave
 fn get_xy(wf_len: usize, index: usize, length: usize, gap_size: usize) -> (usize, usize) {
     let offset = wf_len as i32 - ((wf_len - (gap_size + 1)) / 2) as i32 - (index as i32) - 1;
     if offset >= 0 {
         (length, length + offset as usize)
     } else {
         (length + offset.unsigned_abs() as usize, length)
-    }
-}
-
-//Old wfa for computing edit distance as practice.
-pub fn wfa(seq: &str, seq2: &str) -> u32 {
-    let len = 2 * max(seq.len(), seq2.len()) + 3;
-    let mut edit_dist = 0;
-    let mut wavefront = vec![0; len];
-    let mut new_wavefront = vec![0; len];
-    let mut wf_len = 1;
-    loop {
-        #[allow(clippy::needless_range_loop)]
-        for i in 0..wf_len {
-            let (mut x, mut y) = get_xy(wf_len, i, wavefront[i], 0);
-            while x < seq.len() && y < seq2.len() && seq[x..=x] == seq2[y..=y] {
-                wavefront[i] += 1;
-                x += 1;
-                y += 1;
-            }
-            if x == seq.len() && y == seq2.len() {
-                return edit_dist;
-            }
-        }
-        next_wave(&mut wavefront, &mut new_wavefront, wf_len);
-        edit_dist += 1;
-        wf_len += 2;
     }
 }

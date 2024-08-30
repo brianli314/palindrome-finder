@@ -9,7 +9,7 @@ use clap::{command, ArgGroup, Args, Parser, Subcommand};
     .args(&["fa", "fgz"]))]
 pub struct PalinArgs {
     #[arg(short = 'l', long, default_value_t = 10)]
-    ///Minimum palindrome length
+    ///Minimum palindrome arm length
     pub len: usize,
 
     #[arg(short, long = "gap", default_value_t = 3)]
@@ -24,7 +24,7 @@ pub struct PalinArgs {
     #[arg(long)]
     pub fa: bool,
 
-    /// Indicates the input file should be read in compressed Fasta gzip format
+    /// Indicates the input file should be read in compressed fasta gzip format
     #[arg(long)]
     pub fgz: bool,
 
@@ -62,18 +62,15 @@ pub struct WfaArgs {
     pub match_bonus: f32,
 
     ///Penalty for mismatches in scoring, must be positive (since value is subtracted)
-    #[arg(short = 'p', long = "mismatch", default_value_t = 1.0)]
+    #[arg(short = 'p', long = "mismatch", default_value_t = 4.0)]
     pub mismatch_penalty: f32,
 
-    ///Prune sequences if there are a lot of mismatches in a row.
-    ///Small values lead to more exact matches
-    /// Should depend on match/mismatch scores
-    /// Must be positive
-    #[arg(short, long, default_value_t = 2.0)]
+    ///Maximum score drop allowed before pruning
+    #[arg(short, long, default_value_t = 20.0)]
     pub x_drop: f32,
 
     ///Max percentage of mismatches allowed in a palindrome, must be between 0 and 1
-    #[arg(short = 'r', long, default_value_t = 0.01)]
+    #[arg(short = 'r', long, default_value_t = 0.05)]
     pub mismatch_ratio_threshold: f32,
 }
 

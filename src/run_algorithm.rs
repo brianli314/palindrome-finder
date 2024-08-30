@@ -1,9 +1,15 @@
-use std::{io::Read, sync::atomic::{AtomicU64, Ordering}, time::Instant};
+use std::{
+    io::Read,
+    sync::atomic::{AtomicU64, Ordering},
+    time::Instant,
+};
 
 use anyhow::{ensure, Result};
 
 use crate::{
-    command_line::{FixedArgs, PalinArgs, WfaArgs},
+    command_line::{
+        AlgorithmType::FixedMismatch, AlgorithmType::Wfa, FixedArgs, PalinArgs, WfaArgs,
+    },
     exact_matches::fixed_match,
     fasta_parsing::FastaIterator,
     output::PalindromeData,
@@ -12,12 +18,22 @@ use crate::{
 
 pub static ALGO_TIMER: AtomicU64 = AtomicU64::new(0);
 
+pub fn run<T: Read>(args: &PalinArgs, iterator: FastaIterator<T>) -> Result<Vec<PalindromeData>> {
+    let mut palins = Vec::new();
+    match &args.command {
+        Wfa(cmds) => run_wfa(args, cmds, iterator, &mut palins)?,
+        FixedMismatch(cmds) => run_fixed_match(args, cmds, iterator, &mut palins)?,
+    }
+    Ok(palins)
+}
+
 pub fn run_wfa<T: Read>(
     args: &PalinArgs,
     wfa_args: &WfaArgs,
     iterator: FastaIterator<T>,
     output: &mut Vec<PalindromeData>,
 ) -> Result<()> {
+    
     ensure!(wfa_args.match_bonus > 0.0, "Match bonus not positive");
     ensure!(
         wfa_args.mismatch_penalty > 0.0,
@@ -29,7 +45,6 @@ pub fn run_wfa<T: Read>(
     );
     ensure!(wfa_args.x_drop > 0.0, "X-drop not positive");
 
-    
     let mut palins = Vec::new();
     for line in iterator {
         let start = Instant::now();
