@@ -39,7 +39,7 @@ This does not account for indels, and is also slower. However, it is useful for 
 ### WFA
 The better alternative utilizes the wave-finding algorithm. 
 This is a very fast sequence alignment algorithm to locate palindromes.
-It accounts for indels and mismatches, and uses a more complex pruning method (rather than a fixed number of mismatches)
+It accounts for indels and mismatches, and uses multiple pruning methods (rather than a fixed number of mismatches)
 
 ### Example usage
 ```
