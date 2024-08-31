@@ -39,9 +39,9 @@ pub struct PalinArgs {
 
 #[derive(Debug, Subcommand)]
 pub enum AlgorithmType {
-    ///Use WFA algorithm, allows mismatches and gaps.
+    ///Use fast WFA algorithm, allows mismatches and indels and uses more complex pruning
     Wfa(WfaArgs),
-    ///Use fixed-mismatches algorithm, only allows x mismatches rather than a ratio depending on length
+    ///Use fixed-mismatches algorithm, only allows fixed number mismatches and no indels
     FixedMismatch(FixedArgs),
 }
 
