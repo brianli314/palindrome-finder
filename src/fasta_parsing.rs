@@ -29,7 +29,6 @@ impl Fasta {
 pub struct FastaIterator<T: Read> {
     lines_reader: Lines<BufReader<T>>,
     curr_name: String,
-    filter: String,
 }
 
 impl<T: Read> Iterator for FastaIterator<T> {
@@ -38,38 +37,28 @@ impl<T: Read> Iterator for FastaIterator<T> {
     fn next(&mut self) -> Option<Self::Item> {
         let mut seq = String::new();
 
-        let mut is_filter_off = false;
-
         for line in self.lines_reader.by_ref() {
             let line = match line {
                 Result::Ok(line) => line,
                 Err(err) => return Some(Err(anyhow!("Invalid line/file format: {err}"))),
             };
 
-            if line.contains(&self.filter) || self.curr_name.contains(&self.filter) {
-                is_filter_off = true;
-            } else if !line.contains(&self.filter) {
-                is_filter_off = false;
-            }
-
-            if is_filter_off {
-                if line.starts_with('>') {
-                    let mut name = line.strip_prefix('>').unwrap().to_owned();
-                    if seq.is_empty() {
-                        name.clone_into(&mut self.curr_name);
-                        continue;
-                    }
-                    mem::swap(&mut name, &mut self.curr_name);
-                    return Some(Ok(Fasta {
-                        name,
-                        sequence: seq,
-                    }));
-                //Checks for valid name in fasta
-                } else if !self.curr_name.is_empty() {
-                    seq += &line;
-                } else {
-                    return Some(Err(anyhow!("Invalid fasta format")));
+            if line.starts_with('>') {
+                let mut name = line.strip_prefix('>').unwrap().to_owned();
+                if seq.is_empty() {
+                    name.clone_into(&mut self.curr_name);
+                    continue;
                 }
+                mem::swap(&mut name, &mut self.curr_name);
+                return Some(Ok(Fasta {
+                    name,
+                    sequence: seq,
+                }));
+            //Checks for valid starting line in fasta
+            } else if !self.curr_name.is_empty() {
+                seq += &line;
+            } else {
+                return Some(Err(anyhow!("Invalid fasta format")));
             }
         }
         if seq.is_empty() {
@@ -84,18 +73,17 @@ impl<T: Read> Iterator for FastaIterator<T> {
 }
 
 impl<T: Read> FastaIterator<T> {
-    pub fn new(bufreader: BufReader<T>, filter: String) -> Self {
+    pub fn new(bufreader: BufReader<T>) -> Self {
         Self {
             lines_reader: bufreader.lines(),
-            curr_name: String::new(),
-            filter,
+            curr_name: String::new()
         }
     }
 }
 
 pub fn parse_fasta(args: &PalinArgs) -> Result<FastaIterator<Box<dyn Read>>> {
     let reader = get_reader(args)?;
-    Ok(FastaIterator::new(reader, args.filter.clone()))
+    Ok(FastaIterator::new(reader))
 }
 
 pub fn get_reader(args: &PalinArgs) -> Result<BufReader<Box<dyn Read>>> {

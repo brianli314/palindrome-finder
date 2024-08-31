@@ -32,10 +32,6 @@ pub struct PalinArgs {
     ///Output file path. File does not need to exist.
     pub output_file: String,
 
-    #[arg(short, long,  default_value = "")]
-    ///Filters the Fasta file, such as one specific chromosome
-    pub filter: String,
-
     ///Decide which algorithm should be used
     #[clap(subcommand)]
     pub command: AlgorithmType,
@@ -70,16 +66,16 @@ pub struct WfaArgs {
     pub x_drop: f32,
 
     ///Max percentage of mismatches allowed in a palindrome, must be between 0 and 1
-    #[arg(short = 'r', long, default_value_t = 0.05)]
-    pub mismatch_ratio_threshold: f32,
+    #[arg(short = 'm', long, default_value_t = 0.05)]
+    pub mismatch_proportion: f32,
 }
 
 impl Display for PalinArgs{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Len: {}\nGap: {}\nFilter: {}\n{}",
-            self.len, self.gap_len, self.filter, self.command
+            "Len: {}\nGap: {}\n{}",
+            self.len, self.gap_len, self.command
         )
     }
 }
@@ -90,8 +86,8 @@ impl Display for AlgorithmType{
             AlgorithmType::Wfa(cmds) => 
                 write!(
                     f,
-                    "Match bonus: {}\nMismatch penalty: {}\nX-drop: {}\nMismatch-length threshold: {}",
-                    cmds.match_bonus, cmds.mismatch_penalty, cmds.x_drop, cmds.mismatch_ratio_threshold
+                    "Match bonus: {}\nMismatch penalty: {}\nX-drop: {}\nMax mismatch proportion: {}",
+                    cmds.match_bonus, cmds.mismatch_penalty, cmds.x_drop, cmds.mismatch_proportion
             ),
             AlgorithmType::FixedMismatch(cmds) => 
                 write!(

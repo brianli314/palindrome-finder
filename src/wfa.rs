@@ -47,7 +47,7 @@ pub fn wfa_palins(
         wf[..=wf_len].copy_from_slice(&first_wave);
 
         'outer: while (edit_dist as f32) / (wf[max_index] as f32 + 0.001)
-            <= wfa_args.mismatch_ratio_threshold
+            <= wfa_args.mismatch_proportion
         {
             let mut max_wf_score = 0.0;
             for i in 0..wf_len {

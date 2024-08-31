@@ -15,10 +15,10 @@ use std::{sync::atomic::Ordering, time::Instant};
 
 fn main() -> Result<()> {
     let global_timer = Instant::now();
-
+    
     let args = PalinArgs::parse();
     let iterator = parse_fasta(&args)?;
-
+    print!("{}", args);
     let palins = run(&args, iterator)?;
 
     write_file(palins, &args.output_file)?;

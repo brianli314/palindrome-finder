@@ -40,7 +40,7 @@ pub fn run_wfa<T: Read>(
         "Mismatch penalty not positive"
     );
     ensure!(
-        0.0 < wfa_args.mismatch_ratio_threshold && wfa_args.mismatch_ratio_threshold < 1.0,
+        0.0 < wfa_args.mismatch_proportion && wfa_args.mismatch_proportion < 1.0,
         "Mismatch-length ratio not between 0 and 1"
     );
     ensure!(wfa_args.x_drop > 0.0, "X-drop not positive");
