@@ -1,9 +1,4 @@
-use std::{
-    io::Read,
-    sync::atomic::{AtomicU64, Ordering},
-    time::Instant,
-};
-
+use std::io::Read;
 use anyhow::{ensure, Result};
 
 use crate::{
@@ -15,8 +10,6 @@ use crate::{
     output::PalindromeData,
     wfa::wfa_palins,
 };
-
-pub static ALGO_TIMER: AtomicU64 = AtomicU64::new(0);
 
 pub fn run<T: Read>(args: &PalinArgs, iterator: FastaIterator<T>) -> Result<Vec<PalindromeData>> {
     let mut palins = Vec::new();
@@ -47,10 +40,7 @@ pub fn run_wfa<T: Read>(
 
     let mut palins = Vec::new();
     for line in iterator {
-        let start = Instant::now();
         wfa_palins(line?, output, args, wfa_args)?;
-        let duration = start.elapsed();
-        ALGO_TIMER.fetch_add(duration.as_millis() as u64, Ordering::Relaxed);
         output.append(&mut palins);
         palins.clear();
     }
@@ -66,10 +56,7 @@ pub fn run_fixed_match<T: Read>(
 ) -> Result<()> {
     let mut palins = Vec::new();
     for line in iterator {
-        let start = Instant::now();
         fixed_match(line?, output, args, cmds)?;
-        let duration = start.elapsed();
-        ALGO_TIMER.fetch_add(duration.as_millis() as u64, Ordering::Relaxed);
         output.append(&mut palins);
         palins.clear();
     }

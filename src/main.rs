@@ -10,23 +10,22 @@ use clap::Parser;
 use command_line::PalinArgs;
 use fasta_parsing::parse_fasta;
 use output::write_file;
-use run_algorithm::{run, ALGO_TIMER};
-use std::{sync::atomic::Ordering, time::Instant};
+use run_algorithm::run;
+use std::time::Instant;
 
 fn main() -> Result<()> {
     let global_timer = Instant::now();
     
     let args = PalinArgs::parse();
     let iterator = parse_fasta(&args)?;
-    print!("{}", args);
     let palins = run(&args, iterator)?;
 
     write_file(palins, &args.output_file)?;
 
     let elapsed = global_timer.elapsed();
-    println!("Total elapsed time: {}", elapsed.as_millis());
-    println!("Time spent on algorithm: {}", ALGO_TIMER.load(Ordering::Relaxed));
-    println!("Settings:\n{}", args);
+    println!("Total elapsed time: {:.2?}", elapsed);
+    println!();
+    println!("---Settings---\n{}", args);
     
     Ok(())
 }

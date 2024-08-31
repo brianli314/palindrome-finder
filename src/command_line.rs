@@ -74,7 +74,7 @@ impl Display for PalinArgs{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Len: {}\nGap: {}\n{}",
+            "Min length: {}\nMax gap length: {}\n{}",
             self.len, self.gap_len, self.command
         )
     }
