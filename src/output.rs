@@ -45,8 +45,17 @@ impl PalindromeData {
         }
     }
 }
+
 impl fmt::Display for PalindromeData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Take the first whitespace-separated token from the header,
+        // or fallback to the entire header if there is no whitespace.
+        let name = self
+            .fasta
+            .split_whitespace()
+            .next()
+            .unwrap_or(&self.fasta);
+
         write!(
             f,
             "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
@@ -56,7 +65,7 @@ impl fmt::Display for PalindromeData {
             self.gap,
             self.overall_length,
             self.mismatches,
-            self.fasta.split_once(' ').unwrap().0,
+            name,
             self.sequence,
         )
     }

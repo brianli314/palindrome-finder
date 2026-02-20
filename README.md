@@ -86,4 +86,4 @@ The tool is may not be able to find all desired palindromes, and requires some f
 
 Generally speaking, increasing the X-drop threshold will allow for more consecutive mismatches, and increasing the mismatch proportion allows for more overall mismatches. The default values should be sufficient for most cases.
 
-A [paper](https://figshare.com/articles/journal_contribution/A_NOVEL_ALGORITHMFOR_DETECTION_OF_PALINDROME_DNA/27897300?file=50772369) has been published which details the algorithm, process, and input variables much more thoroughly.
+A [paper](https://nhsjs.com/2025/an-algorithm-for-detection-of-palindrome-dna/) has been published which details the algorithm, process, and input variables much more thoroughly.
